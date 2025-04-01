@@ -15,16 +15,9 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { Package, Search } from "lucide-react";
+import { Database } from "@/integrations/supabase/types";
 
-interface InventoryItem {
-  id: string;
-  name: string;
-  description: string;
-  price: number;
-  stock_quantity: number;
-  image_url: string;
-  category: string;
-}
+type InventoryItem = Database['public']['Tables']['inventory']['Row'];
 
 export default function InventoryPage() {
   const { user, loading } = useAuth();
@@ -47,7 +40,7 @@ export default function InventoryPage() {
     const fetchInventory = async () => {
       try {
         const { data, error } = await supabase
-          .from("inventory")
+          .from('inventory')
           .select("*")
           .order("name");
 
@@ -60,7 +53,7 @@ export default function InventoryPage() {
         
         // Extract unique categories
         const uniqueCategories = [...new Set(data?.map(item => item.category) || [])];
-        setCategories(uniqueCategories);
+        setCategories(uniqueCategories.filter(Boolean) as string[]);
         
         setIsLoading(false);
       } catch (error) {
