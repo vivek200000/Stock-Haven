@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
@@ -13,20 +14,78 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
-import { Package, Search } from "lucide-react";
+import { Package, Search, Plus, X } from "lucide-react";
 import { Database } from "@/integrations/supabase/types";
+import { useToast } from "@/hooks/use-toast";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 
 type InventoryItem = Database['public']['Tables']['inventory']['Row'];
+
+// Sample images for different auto parts categories
+const sampleImages = {
+  'Engine Parts': [
+    'https://source.unsplash.com/random/300x200/?engine',
+    'https://source.unsplash.com/random/300x200/?car-engine',
+    'https://source.unsplash.com/random/300x200/?motor',
+  ],
+  'Filters': [
+    'https://source.unsplash.com/random/300x200/?filter',
+    'https://source.unsplash.com/random/300x200/?oil-filter',
+    'https://source.unsplash.com/random/300x200/?air-filter',
+  ],
+  'Brakes': [
+    'https://source.unsplash.com/random/300x200/?brake',
+    'https://source.unsplash.com/random/300x200/?brake-pad',
+    'https://source.unsplash.com/random/300x200/?brake-disc',
+  ],
+  'Fluids': [
+    'https://source.unsplash.com/random/300x200/?oil',
+    'https://source.unsplash.com/random/300x200/?coolant',
+    'https://source.unsplash.com/random/300x200/?brake-fluid',
+  ],
+  'Electrical': [
+    'https://source.unsplash.com/random/300x200/?battery',
+    'https://source.unsplash.com/random/300x200/?car-battery',
+    'https://source.unsplash.com/random/300x200/?alternator',
+  ],
+  'Tires': [
+    'https://source.unsplash.com/random/300x200/?tire',
+    'https://source.unsplash.com/random/300x200/?wheel',
+    'https://source.unsplash.com/random/300x200/?car-tire',
+  ],
+  'Suspension': [
+    'https://source.unsplash.com/random/300x200/?suspension',
+    'https://source.unsplash.com/random/300x200/?shock-absorber',
+    'https://source.unsplash.com/random/300x200/?strut',
+  ],
+  'Default': [
+    'https://source.unsplash.com/random/300x200/?automotive',
+    'https://source.unsplash.com/random/300x200/?car-part',
+    'https://source.unsplash.com/random/300x200/?spare-part',
+  ]
+};
 
 export default function InventoryPage() {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [inventory, setInventory] = useState<InventoryItem[]>([]);
   const [filteredInventory, setFilteredInventory] = useState<InventoryItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [categoryFilter, setCategoryFilter] = useState<string>("");
   const [categories, setCategories] = useState<string[]>([]);
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [newItem, setNewItem] = useState({
+    name: '',
+    price: 0,
+    category: '',
+    stock_quantity: 1,
+    description: '',
+    image_url: ''
+  });
 
   useEffect(() => {
     if (!loading && !user) {
@@ -98,6 +157,63 @@ export default function InventoryPage() {
     setFilteredInventory(filtered);
   }, [searchTerm, categoryFilter, inventory]);
 
+  const addNewItem = async () => {
+    try {
+      if (!newItem.name || newItem.price <= 0) {
+        toast({
+          title: "Missing required fields",
+          description: "Please provide a name and a valid price.",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      // Generate a sample image URL if not provided
+      let imageUrl = newItem.image_url;
+      if (!imageUrl) {
+        const categoryImages = sampleImages[newItem.category as keyof typeof sampleImages] || sampleImages.Default;
+        imageUrl = categoryImages[Math.floor(Math.random() * categoryImages.length)];
+      }
+
+      const { data, error } = await supabase
+        .from('inventory')
+        .insert([{
+          name: newItem.name,
+          price: newItem.price,
+          category: newItem.category,
+          stock_quantity: newItem.stock_quantity,
+          description: newItem.description,
+          image_url: imageUrl
+        }])
+        .select();
+
+      if (error) throw error;
+
+      toast({
+        title: "Item added",
+        description: `${newItem.name} has been added to the inventory.`
+      });
+
+      setIsAddDialogOpen(false);
+      setNewItem({
+        name: '',
+        price: 0,
+        category: '',
+        stock_quantity: 1,
+        description: '',
+        image_url: ''
+      });
+      
+    } catch (error) {
+      console.error("Error adding item:", error);
+      toast({
+        title: "Error adding item",
+        description: "There was an error adding the item to inventory.",
+        variant: "destructive"
+      });
+    }
+  };
+
   if (loading || isLoading) {
     return <div className="flex items-center justify-center h-screen">Loading...</div>;
   }
@@ -110,13 +226,21 @@ export default function InventoryPage() {
     }).format(price);
   };
 
+  const getCategoryImage = (category: string | null) => {
+    if (!category || !sampleImages[category as keyof typeof sampleImages]) {
+      return sampleImages.Default[0];
+    }
+    const categoryImages = sampleImages[category as keyof typeof sampleImages];
+    return categoryImages[0];
+  };
+
   return (
     <DashboardLayout>
       <div className="flex flex-col gap-4">
         <div className="flex justify-between items-center">
           <h1 className="text-3xl font-bold tracking-tight">Inventory</h1>
-          <Button>
-            <Package className="h-4 w-4 mr-2" />
+          <Button onClick={() => setIsAddDialogOpen(true)}>
+            <Plus className="h-4 w-4 mr-2" />
             Add New Item
           </Button>
         </div>
@@ -152,7 +276,7 @@ export default function InventoryPage() {
             <Card key={item.id} className="overflow-hidden">
               <div className="h-48 overflow-hidden">
                 <img
-                  src={item.image_url || "https://source.unsplash.com/random/300x200/?automotive"}
+                  src={item.image_url || getCategoryImage(item.category)}
                   alt={item.name}
                   className="w-full h-full object-cover transition-transform hover:scale-105"
                 />
@@ -195,6 +319,109 @@ export default function InventoryPage() {
           )}
         </div>
       </div>
+
+      {/* Add New Item Dialog */}
+      <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Add New Inventory Item</DialogTitle>
+            <DialogDescription>
+              Add a new automotive part to your inventory
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="name" className="text-right">
+                Name
+              </Label>
+              <Input
+                id="name"
+                value={newItem.name}
+                onChange={(e) => setNewItem({...newItem, name: e.target.value})}
+                className="col-span-3"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="price" className="text-right">
+                Price (₹)
+              </Label>
+              <Input
+                id="price"
+                type="number"
+                value={newItem.price || ''}
+                onChange={(e) => setNewItem({...newItem, price: parseFloat(e.target.value) || 0})}
+                min={0}
+                className="col-span-3"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="category" className="text-right">
+                Category
+              </Label>
+              <Select 
+                onValueChange={(value) => setNewItem({...newItem, category: value})}
+                value={newItem.category}
+              >
+                <SelectTrigger className="col-span-3">
+                  <SelectValue placeholder="Select a category" />
+                </SelectTrigger>
+                <SelectContent>
+                  {Object.keys(sampleImages).filter(cat => cat !== 'Default').map((category) => (
+                    <SelectItem key={category} value={category}>
+                      {category}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="quantity" className="text-right">
+                Quantity
+              </Label>
+              <Input
+                id="quantity"
+                type="number"
+                value={newItem.stock_quantity || 1}
+                onChange={(e) => setNewItem({...newItem, stock_quantity: parseInt(e.target.value) || 1})}
+                min={1}
+                className="col-span-3"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="image" className="text-right">
+                Image URL
+              </Label>
+              <Input
+                id="image"
+                value={newItem.image_url}
+                onChange={(e) => setNewItem({...newItem, image_url: e.target.value})}
+                placeholder="Leave blank for sample image"
+                className="col-span-3"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="description" className="text-right">
+                Description
+              </Label>
+              <Textarea
+                id="description"
+                value={newItem.description}
+                onChange={(e) => setNewItem({...newItem, description: e.target.value})}
+                className="col-span-3"
+                rows={3}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={addNewItem}>
+              Add Item
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </DashboardLayout>
   );
 }
