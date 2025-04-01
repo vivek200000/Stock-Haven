@@ -1,4 +1,3 @@
-
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import { toast } from "@/components/ui/use-toast";
 
@@ -93,12 +92,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setLoading(false);
   }, []);
 
-  const signIn = async (email: string, password: string) => {
+  const signIn = async (email: string, password: string): Promise<void> => {
     try {
       setLoading(true);
       const user = await mockSignIn(email, password);
       setUser(user);
-      return user;
     } catch (error) {
       toast({
         variant: "destructive",
@@ -116,7 +114,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setLoading(true);
       const user = await mockSignUp(name, email, password, role);
       setUser(user);
-      return user;
     } catch (error) {
       toast({
         variant: "destructive",
