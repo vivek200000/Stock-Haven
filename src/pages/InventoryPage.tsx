@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
@@ -24,6 +23,20 @@ import { Badge } from "@/components/ui/badge";
 
 type InventoryItem = Database['public']['Tables']['inventory']['Row'];
 
+// Updated catalog of product images
+const productImages = {
+  'Air Filters': '/lovable-uploads/ec771ea3-5241-4724-ae9a-55e60893932f.png',
+  'Alternator': '/lovable-uploads/7835eef7-3e23-4426-b46d-f22945529f9c.png',
+  'Battery': '/lovable-uploads/b821168a-505e-400e-8fdd-2281c00507fd.png',
+  'Brake Pads': '/lovable-uploads/e779f474-be9c-42f8-9e8a-96fd6dc904f4.png',
+  'Engine Oil Filter': '/lovable-uploads/fbd1dd8d-be0b-453f-b0aa-487e58ab34cb.png',
+  'Headlight Assembly': '/lovable-uploads/e53018a5-8d50-4f85-997e-70fb4ca2a16e.png',
+  'Radiator': '/lovable-uploads/027438c9-2e40-4b66-8d3c-c5d97dbc6996.png',
+  'Shock Absorber': '/lovable-uploads/91f0fd90-4735-4122-9e44-6e7370b48dd1.png',
+  'Spark Plugs': '/lovable-uploads/473080dd-7f4a-49b8-8992-de0acbe749a8.png',
+  'Timing Belt': '/lovable-uploads/c941b155-c880-4634-8906-6eef4cb60478.png',
+};
+
 // Sample images for different auto parts categories
 const sampleImages = {
   'Engine Parts': [
@@ -31,26 +44,32 @@ const sampleImages = {
     '/lovable-uploads/fec52b68-848b-4f42-bb2f-e338ea292d82.png'
   ],
   'Filters': [
-    '/lovable-uploads/5810386b-ce04-4b5b-a0cb-30c5c7a93f47.png',
-    '/lovable-uploads/df4ff96e-a603-4c23-954b-f981ab2c5369.png'
+    '/lovable-uploads/ec771ea3-5241-4724-ae9a-55e60893932f.png',
+    '/lovable-uploads/fbd1dd8d-be0b-453f-b0aa-487e58ab34cb.png'
   ],
   'Brakes': [
-    '/lovable-uploads/e7839ea7-2c25-41ed-b90d-72a835d226e5.png'
+    '/lovable-uploads/e779f474-be9c-42f8-9e8a-96fd6dc904f4.png'
   ],
   'Battery': [
-    '/lovable-uploads/26dc1c70-bfba-4f8b-96d8-5959778001c3.png'
+    '/lovable-uploads/b821168a-505e-400e-8fdd-2281c00507fd.png'
   ],
   'Alternator': [
-    '/lovable-uploads/24710767-fb46-4680-a140-e4ab03834654.png'
+    '/lovable-uploads/7835eef7-3e23-4426-b46d-f22945529f9c.png'
   ],
   'Headlights': [
-    '/lovable-uploads/a241383c-c452-4410-aec1-0e360c03e483.png'
+    '/lovable-uploads/e53018a5-8d50-4f85-997e-70fb4ca2a16e.png'
   ],
   'Radiator': [
-    '/lovable-uploads/811edc3a-5b9b-46ec-bd6f-afd297f677b6.png'
+    '/lovable-uploads/027438c9-2e40-4b66-8d3c-c5d97dbc6996.png'
   ],
   'Shock Absorber': [
-    '/lovable-uploads/7001bbb7-c425-43d3-81ec-87927036ac64.png'
+    '/lovable-uploads/91f0fd90-4735-4122-9e44-6e7370b48dd1.png'
+  ],
+  'Spark Plugs': [
+    '/lovable-uploads/473080dd-7f4a-49b8-8992-de0acbe749a8.png'
+  ],
+  'Timing Belt': [
+    '/lovable-uploads/c941b155-c880-4634-8906-6eef4cb60478.png'
   ],
   'Default': [
     'https://source.unsplash.com/random/300x200/?automotive',
@@ -212,9 +231,23 @@ export default function InventoryPage() {
     setIsViewDialogOpen(true);
   };
 
-  if (loading || isLoading) {
-    return <div className="flex items-center justify-center h-screen">Loading...</div>;
-  }
+  const getCategoryImage = (category: string | null, name: string) => {
+    // Check if we have an exact match in the product images
+    for (const [productName, imagePath] of Object.entries(productImages)) {
+      if (name.toLowerCase().includes(productName.toLowerCase())) {
+        return imagePath;
+      }
+    }
+    
+    // Try to find a match based on category
+    if (category && sampleImages[category as keyof typeof sampleImages]) {
+      const categoryImages = sampleImages[category as keyof typeof sampleImages];
+      return categoryImages[0];
+    }
+    
+    // Default fallback
+    return sampleImages.Default[0];
+  };
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('en-IN', {
@@ -224,13 +257,9 @@ export default function InventoryPage() {
     }).format(price);
   };
 
-  const getCategoryImage = (category: string | null) => {
-    if (!category || !sampleImages[category as keyof typeof sampleImages]) {
-      return sampleImages.Default[0];
-    }
-    const categoryImages = sampleImages[category as keyof typeof sampleImages];
-    return categoryImages[0];
-  };
+  if (loading || isLoading) {
+    return <div className="flex items-center justify-center h-screen">Loading...</div>;
+  }
 
   return (
     <DashboardLayout>
@@ -274,7 +303,7 @@ export default function InventoryPage() {
             <Card key={item.id} className="overflow-hidden flex flex-col h-full transition-all duration-200 hover:shadow-md">
               <div className="h-48 overflow-hidden bg-muted relative">
                 <img
-                  src={item.image_url || getCategoryImage(item.category)}
+                  src={item.image_url || getCategoryImage(item.category, item.name)}
                   alt={item.name}
                   className="w-full h-full object-cover transition-transform hover:scale-105"
                   onError={(e) => {
@@ -444,7 +473,7 @@ export default function InventoryPage() {
             <div className="grid md:grid-cols-2 gap-4">
               <div className="h-60 overflow-hidden rounded-md bg-muted">
                 <img
-                  src={selectedItem.image_url || getCategoryImage(selectedItem.category)}
+                  src={selectedItem.image_url || getCategoryImage(selectedItem.category, selectedItem.name)}
                   alt={selectedItem.name}
                   className="w-full h-full object-cover"
                 />

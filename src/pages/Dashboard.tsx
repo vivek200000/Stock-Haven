@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
@@ -121,8 +120,8 @@ export default function Dashboard() {
       const { error } = await supabase
         .from('inventory')
         .update({ stock_quantity: 0 })
-        .neq('id', '');
-
+        .gt('id', '0');
+      
       if (error) throw error;
       
       toast({
@@ -155,6 +154,7 @@ export default function Dashboard() {
         <div className="flex justify-between items-center">
           <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
           <div className="flex items-center gap-2">
+            <ThemeToggle />
             <AlertDialog open={isResetDialogOpen} onOpenChange={setIsResetDialogOpen}>
               <AlertDialogTrigger asChild>
                 <Button variant="outline" className="gap-2">
