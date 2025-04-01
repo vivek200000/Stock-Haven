@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
@@ -65,7 +64,6 @@ export default function Dashboard() {
     };
   }, []);
 
-  // Data for pie charts
   const categoryData = useCategoryData(inventory);
   const stockLevelData = useStockLevelData(inventory);
   const salesData = [
@@ -244,7 +242,7 @@ export default function Dashboard() {
                       <Cell key={`cell-${index}`} fill={entry.color} />
                     ))}
                   </Pie>
-                  <Tooltip formatter={(value) => [`${value} items`, 'Quantity']} />
+                  <Tooltip formatter={(value: any) => [`${value} items`, 'Quantity']} />
                   <Legend />
                 </PieChart>
               </ResponsiveContainer>
@@ -275,7 +273,7 @@ export default function Dashboard() {
                       <Cell key={`cell-${index}`} fill={entry.color} />
                     ))}
                   </Pie>
-                  <Tooltip formatter={(value) => [`${value} items`, 'Count']} />
+                  <Tooltip formatter={(value: any) => [`${value} items`, 'Count']} />
                   <Legend />
                 </PieChart>
               </ResponsiveContainer>
@@ -306,7 +304,7 @@ export default function Dashboard() {
                       <Cell key={`cell-${index}`} fill={entry.color} />
                     ))}
                   </Pie>
-                  <Tooltip formatter={(value) => [`₹${formatNumber(value)}`, 'Revenue']} />
+                  <Tooltip formatter={(value: any) => [`₹${formatNumber(Number(value))}`, 'Revenue']} />
                   <Legend />
                 </PieChart>
               </ResponsiveContainer>
@@ -384,7 +382,6 @@ export default function Dashboard() {
   );
 }
 
-// Helper functions to process data for charts
 function useCategoryData(inventory: InventoryItem[]) {
   const [data, setData] = useState<{ name: string; value: number; color: string }[]>([]);
   
