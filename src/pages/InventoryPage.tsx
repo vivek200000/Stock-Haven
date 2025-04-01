@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
@@ -35,7 +34,6 @@ export default function InventoryPage() {
     }
   }, [user, loading, navigate]);
 
-  // Fetch inventory data
   useEffect(() => {
     const fetchInventory = async () => {
       try {
@@ -51,7 +49,6 @@ export default function InventoryPage() {
         setInventory(data || []);
         setFilteredInventory(data || []);
         
-        // Extract unique categories
         const uniqueCategories = [...new Set(data?.map(item => item.category) || [])];
         setCategories(uniqueCategories.filter(Boolean) as string[]);
         
@@ -64,7 +61,6 @@ export default function InventoryPage() {
 
     fetchInventory();
     
-    // Set up realtime subscription
     const channel = supabase
       .channel('schema-db-changes')
       .on(
@@ -75,7 +71,6 @@ export default function InventoryPage() {
           table: 'inventory'
         },
         (payload) => {
-          // Update local inventory data when changes are detected
           fetchInventory();
         }
       )
@@ -86,7 +81,6 @@ export default function InventoryPage() {
     };
   }, []);
 
-  // Filter inventory based on search term and category
   useEffect(() => {
     let filtered = inventory;
     
@@ -97,7 +91,7 @@ export default function InventoryPage() {
       );
     }
     
-    if (categoryFilter) {
+    if (categoryFilter && categoryFilter !== "all-categories") {
       filtered = filtered.filter(item => item.category === categoryFilter);
     }
     
@@ -143,7 +137,7 @@ export default function InventoryPage() {
               <SelectValue placeholder="Category" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All Categories</SelectItem>
+              <SelectItem value="all-categories">All Categories</SelectItem>
               {categories.map((category) => (
                 <SelectItem key={category} value={category}>
                   {category}
