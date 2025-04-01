@@ -14,56 +14,47 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
-import { Package, Search, Plus, X } from "lucide-react";
+import { Package, Search, Plus, X, Tag, Truck, Calendar, BarChart2 } from "lucide-react";
 import { Database } from "@/integrations/supabase/types";
 import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
 
 type InventoryItem = Database['public']['Tables']['inventory']['Row'];
 
 // Sample images for different auto parts categories
 const sampleImages = {
   'Engine Parts': [
-    'https://source.unsplash.com/random/300x200/?engine',
-    'https://source.unsplash.com/random/300x200/?car-engine',
-    'https://source.unsplash.com/random/300x200/?motor',
+    '/lovable-uploads/db7037f4-82df-4e87-ab07-fee4a5735c77.png',
+    '/lovable-uploads/fec52b68-848b-4f42-bb2f-e338ea292d82.png'
   ],
   'Filters': [
-    'https://source.unsplash.com/random/300x200/?filter',
-    'https://source.unsplash.com/random/300x200/?oil-filter',
-    'https://source.unsplash.com/random/300x200/?air-filter',
+    '/lovable-uploads/5810386b-ce04-4b5b-a0cb-30c5c7a93f47.png',
+    '/lovable-uploads/df4ff96e-a603-4c23-954b-f981ab2c5369.png'
   ],
   'Brakes': [
-    'https://source.unsplash.com/random/300x200/?brake',
-    'https://source.unsplash.com/random/300x200/?brake-pad',
-    'https://source.unsplash.com/random/300x200/?brake-disc',
+    '/lovable-uploads/e7839ea7-2c25-41ed-b90d-72a835d226e5.png'
   ],
-  'Fluids': [
-    'https://source.unsplash.com/random/300x200/?oil',
-    'https://source.unsplash.com/random/300x200/?coolant',
-    'https://source.unsplash.com/random/300x200/?brake-fluid',
+  'Battery': [
+    '/lovable-uploads/26dc1c70-bfba-4f8b-96d8-5959778001c3.png'
   ],
-  'Electrical': [
-    'https://source.unsplash.com/random/300x200/?battery',
-    'https://source.unsplash.com/random/300x200/?car-battery',
-    'https://source.unsplash.com/random/300x200/?alternator',
+  'Alternator': [
+    '/lovable-uploads/24710767-fb46-4680-a140-e4ab03834654.png'
   ],
-  'Tires': [
-    'https://source.unsplash.com/random/300x200/?tire',
-    'https://source.unsplash.com/random/300x200/?wheel',
-    'https://source.unsplash.com/random/300x200/?car-tire',
+  'Headlights': [
+    '/lovable-uploads/a241383c-c452-4410-aec1-0e360c03e483.png'
   ],
-  'Suspension': [
-    'https://source.unsplash.com/random/300x200/?suspension',
-    'https://source.unsplash.com/random/300x200/?shock-absorber',
-    'https://source.unsplash.com/random/300x200/?strut',
+  'Radiator': [
+    '/lovable-uploads/811edc3a-5b9b-46ec-bd6f-afd297f677b6.png'
+  ],
+  'Shock Absorber': [
+    '/lovable-uploads/7001bbb7-c425-43d3-81ec-87927036ac64.png'
   ],
   'Default': [
     'https://source.unsplash.com/random/300x200/?automotive',
     'https://source.unsplash.com/random/300x200/?car-part',
-    'https://source.unsplash.com/random/300x200/?spare-part',
   ]
 };
 
@@ -78,6 +69,8 @@ export default function InventoryPage() {
   const [categoryFilter, setCategoryFilter] = useState<string>("");
   const [categories, setCategories] = useState<string[]>([]);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
+  const [selectedItem, setSelectedItem] = useState<InventoryItem | null>(null);
   const [newItem, setNewItem] = useState({
     name: '',
     price: 0,
@@ -214,6 +207,11 @@ export default function InventoryPage() {
     }
   };
 
+  const handleViewItem = (item: InventoryItem) => {
+    setSelectedItem(item);
+    setIsViewDialogOpen(true);
+  };
+
   if (loading || isLoading) {
     return <div className="flex items-center justify-center h-screen">Loading...</div>;
   }
@@ -245,19 +243,19 @@ export default function InventoryPage() {
           </Button>
         </div>
         
-        <div className="flex items-center space-x-2 mb-4">
-          <div className="relative flex-1">
+        <div className="flex flex-col md:flex-row items-center space-y-2 md:space-y-0 md:space-x-2 mb-4">
+          <div className="relative flex-1 w-full">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
               type="search"
               placeholder="Search inventory..."
-              className="pl-8"
+              className="pl-8 w-full"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
           <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-            <SelectTrigger className="w-[180px]">
+            <SelectTrigger className="md:w-[180px] w-full mt-2 md:mt-0">
               <SelectValue placeholder="Category" />
             </SelectTrigger>
             <SelectContent>
@@ -273,35 +271,45 @@ export default function InventoryPage() {
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {filteredInventory.map((item) => (
-            <Card key={item.id} className="overflow-hidden">
-              <div className="h-48 overflow-hidden">
+            <Card key={item.id} className="overflow-hidden flex flex-col h-full transition-all duration-200 hover:shadow-md">
+              <div className="h-48 overflow-hidden bg-muted relative">
                 <img
                   src={item.image_url || getCategoryImage(item.category)}
                   alt={item.name}
                   className="w-full h-full object-cover transition-transform hover:scale-105"
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.src = sampleImages.Default[0];
+                  }}
                 />
+                <div className="absolute top-2 right-2">
+                  <Badge variant={item.stock_quantity > 10 ? "secondary" : item.stock_quantity > 0 ? "default" : "destructive"}>
+                    {item.stock_quantity > 0 ? `Stock: ${item.stock_quantity}` : "Out of Stock"}
+                  </Badge>
+                </div>
               </div>
-              <CardContent className="p-4">
+              <CardContent className="p-4 flex-1">
                 <h3 className="font-semibold text-lg">{item.name}</h3>
-                <p className="text-sm text-muted-foreground line-clamp-2 h-10">
-                  {item.description}
+                <div className="flex items-center gap-1 mt-1 text-muted-foreground">
+                  <Tag className="h-3 w-3" />
+                  <span className="text-xs">{item.category}</span>
+                </div>
+                <p className="text-sm text-muted-foreground mt-2 line-clamp-2 h-10">
+                  {item.description || "No description available."}
                 </p>
                 <div className="mt-2 flex justify-between items-center">
-                  <span className="font-bold text-lg">{formatPrice(item.price)}</span>
-                  <span className={`text-sm px-2 py-1 rounded-full ${
-                    item.stock_quantity > 10 
-                      ? 'bg-green-100 text-green-800' 
-                      : item.stock_quantity > 0 
-                        ? 'bg-yellow-100 text-yellow-800' 
-                        : 'bg-red-100 text-red-800'
-                  }`}>
-                    Stock: {item.stock_quantity}
-                  </span>
+                  <span className="font-bold text-lg text-primary">{formatPrice(item.price)}</span>
                 </div>
               </CardContent>
-              <CardFooter className="p-4 pt-0 flex justify-between">
-                <span className="text-xs text-muted-foreground">{item.category}</span>
-                <Button variant="outline" size="sm">Update</Button>
+              <CardFooter className="p-4 pt-0 flex justify-between border-t">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="w-full"
+                  onClick={() => handleViewItem(item)}
+                >
+                  View Details
+                </Button>
               </CardFooter>
             </Card>
           ))}
@@ -422,6 +430,81 @@ export default function InventoryPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* View Item Details Dialog */}
+      {selectedItem && (
+        <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
+          <DialogContent className="sm:max-w-[550px]">
+            <DialogHeader>
+              <DialogTitle>{selectedItem.name}</DialogTitle>
+              <DialogDescription>
+                Full details of the inventory item
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid md:grid-cols-2 gap-4">
+              <div className="h-60 overflow-hidden rounded-md bg-muted">
+                <img
+                  src={selectedItem.image_url || getCategoryImage(selectedItem.category)}
+                  alt={selectedItem.name}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <div className="space-y-4">
+                <div>
+                  <h4 className="text-sm font-medium text-muted-foreground">Category</h4>
+                  <p className="flex items-center gap-1 mt-1">
+                    <Tag className="h-4 w-4" />
+                    <span>{selectedItem.category || "Uncategorized"}</span>
+                  </p>
+                </div>
+                <div>
+                  <h4 className="text-sm font-medium text-muted-foreground">Price</h4>
+                  <p className="flex items-center gap-1 mt-1 text-lg font-bold">
+                    <BarChart2 className="h-4 w-4" />
+                    <span>{formatPrice(selectedItem.price)}</span>
+                  </p>
+                </div>
+                <div>
+                  <h4 className="text-sm font-medium text-muted-foreground">Stock</h4>
+                  <p className="flex items-center gap-1 mt-1">
+                    <Package className="h-4 w-4" />
+                    <span>{selectedItem.stock_quantity} units available</span>
+                  </p>
+                </div>
+                <div>
+                  <h4 className="text-sm font-medium text-muted-foreground">Last Updated</h4>
+                  <p className="flex items-center gap-1 mt-1">
+                    <Calendar className="h-4 w-4" />
+                    <span>Today</span>
+                  </p>
+                </div>
+              </div>
+              <div className="md:col-span-2">
+                <h4 className="text-sm font-medium text-muted-foreground mb-2">Description</h4>
+                <p className="text-sm">{selectedItem.description || "No description available."}</p>
+              </div>
+            </div>
+            <DialogFooter className="gap-2">
+              <Button variant="outline" onClick={() => setIsViewDialogOpen(false)}>
+                Close
+              </Button>
+              <Button 
+                variant="default"
+                onClick={() => {
+                  setIsViewDialogOpen(false);
+                  // Here you would implement the "Edit" functionality
+                  toast({
+                    title: "Edit functionality",
+                    description: "Edit functionality will be implemented soon",
+                  });
+                }}
+              >
+                Edit
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
     </DashboardLayout>
   );
 }

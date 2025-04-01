@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
@@ -7,9 +6,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Search, Truck, Phone, Mail, Package, Map, ExternalLink, Calendar, CheckCircle, AlertCircle, Clock } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface Supplier {
   id: string;
@@ -25,7 +23,6 @@ interface Supplier {
   lastDelivery: Date;
 }
 
-// Generate sample suppliers data
 const generateSampleSuppliers = (): Supplier[] => {
   const supplierNames = [
     "Tata Auto Parts",
@@ -69,7 +66,6 @@ const generateSampleSuppliers = (): Supplier[] => {
   ];
   
   return supplierNames.map((name, index) => {
-    // Generate 2-4 random categories for each supplier
     const numCategories = Math.floor(Math.random() * 3) + 2;
     const supplierCategories: string[] = [];
     for (let i = 0; i < numCategories; i++) {
@@ -79,7 +75,6 @@ const generateSampleSuppliers = (): Supplier[] => {
       }
     }
     
-    // Generate random last delivery date within the last 30 days
     const lastDelivery = new Date();
     lastDelivery.setDate(lastDelivery.getDate() - Math.floor(Math.random() * 30));
     
@@ -114,14 +109,12 @@ export default function SuppliersPage() {
   }, [user, loading, navigate]);
   
   useEffect(() => {
-    // In a real application, you would fetch from the database
     setSuppliers(generateSampleSuppliers());
   }, []);
   
   useEffect(() => {
     let filtered = [...suppliers];
     
-    // Apply search filter
     if (searchTerm) {
       filtered = filtered.filter(supplier => 
         supplier.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -131,7 +124,6 @@ export default function SuppliersPage() {
       );
     }
     
-    // Apply tab filter
     if (activeTab !== "all") {
       if (activeTab === "active") {
         filtered = filtered.filter(supplier => supplier.status === "active");
