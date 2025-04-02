@@ -1,7 +1,7 @@
 
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import speakeasy from 'speakeasy';
+import * as OTPAuth from 'otpauth';
 
 export const useTwoFactor = () => {
   const [twoFactorRequired, setTwoFactorRequired] = useState(false);
@@ -29,11 +29,26 @@ export const useTwoFactor = () => {
   };
 
   const verifyGoogleAuthenticatorCode = (secret: string, token: string) => {
-    return speakeasy.totp.verify({
-      secret: secret,
-      encoding: 'base32',
-      token: token
-    });
+    try {
+      // Create a new TOTP object with the secret
+      const totp = new OTPAuth.TOTP({
+        issuer: 'Wheels',
+        label: 'Auth',
+        algorithm: 'SHA1',
+        digits: 6,
+        period: 30,
+        secret: OTPAuth.Secret.fromBase32(secret)
+      });
+      
+      // Verify the token
+      const delta = totp.validate({ token, window: 1 });
+      
+      // If delta is null, validation failed
+      return delta !== null;
+    } catch (error) {
+      console.error('Error verifying Google Auth code:', error);
+      return false;
+    }
   };
 
   return {

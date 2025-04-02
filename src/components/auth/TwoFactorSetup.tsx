@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -6,18 +7,37 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/components/ui/use-toast';
 import { QRCodeCanvas } from 'qrcode.react';
-import speakeasy from 'speakeasy';
+import * as OTPAuth from 'otpauth';
 
 export const TwoFactorSetup = () => {
   const { user, profile } = useAuth();
   const { toast } = useToast();
   const [selectedMethod, setSelectedMethod] = useState<'email' | 'google' | null>(null);
   const [googleAuthSecret, setGoogleAuthSecret] = useState<string | null>(null);
+  const [qrUrl, setQrUrl] = useState<string>('');
 
   const generateGoogleAuthSecret = () => {
-    const secret = speakeasy.generateSecret({ name: `Wheels: ${user?.email}` });
-    setGoogleAuthSecret(secret.base32);
-    return secret;
+    // Generate a new secret
+    const secret = OTPAuth.Secret.random(20);
+    const base32Secret = secret.base32;
+    
+    // Create a TOTP object
+    const totp = new OTPAuth.TOTP({
+      issuer: 'Wheels',
+      label: user?.email || 'User',
+      algorithm: 'SHA1',
+      digits: 6,
+      period: 30,
+      secret
+    });
+    
+    // Generate the URL for the QR code
+    const url = totp.toString();
+    
+    setGoogleAuthSecret(base32Secret);
+    setQrUrl(url);
+    
+    return { base32: base32Secret, otpauth_url: url };
   };
 
   const enableEmailTwoFactor = async () => {
@@ -84,7 +104,7 @@ export const TwoFactorSetup = () => {
         return (
           <div className="space-y-4">
             <h3>Google Authenticator Setup</h3>
-            <QRCodeCanvas value={secret.otpauth_url || ''} />
+            <QRCodeCanvas value={qrUrl} />
             <p>Scan this QR code with Google Authenticator</p>
             <div>
               <Label>Or enter this secret key manually:</Label>
