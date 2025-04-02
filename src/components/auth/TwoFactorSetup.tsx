@@ -17,8 +17,8 @@ export const TwoFactorSetup = () => {
   const [qrUrl, setQrUrl] = useState<string>('');
 
   const generateGoogleAuthSecret = () => {
-    // Generate a new secret
-    const secret = OTPAuth.Secret.random(20);
+    // Generate a new secret - manually create a secret instead of using Secret.random
+    const secret = new OTPAuth.Secret();
     const base32Secret = secret.base32;
     
     // Create a TOTP object
