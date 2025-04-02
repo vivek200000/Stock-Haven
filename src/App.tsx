@@ -17,6 +17,11 @@ import SuppliersPage from "./pages/SuppliersPage";
 import ReportsPage from "./pages/ReportsPage";
 import NotFound from "./pages/NotFound";
 
+// Purchase Pages
+import VendorPO from "./pages/purchase/VendorPO";
+import MyPO from "./pages/purchase/MyPO";
+import Expenses from "./pages/purchase/Expenses";
+
 // Purchase Reports
 import PurchaseOrderReport from "./pages/reports/purchase/PurchaseOrderReport";
 import PendingPurchaseOrders from "./pages/reports/purchase/PendingPurchaseOrders";
@@ -27,6 +32,7 @@ import InventoryPendingOrders from "./pages/reports/inventory/PendingOrdersRepor
 import SupplierPerformance from "./pages/reports/inventory/SupplierPerformance";
 
 // Sales Reports
+import Invoices from "./pages/sales/Invoices";
 import CustomerOrderHistory from "./pages/reports/sales/CustomerOrderHistory";
 import ReturnedItems from "./pages/reports/sales/ReturnedItems";
 
@@ -53,6 +59,11 @@ const App = () => (
               <Route path="/dashboard/suppliers" element={<SuppliersPage />} />
               <Route path="/dashboard/reports" element={<ReportsPage />} />
               
+              {/* Purchase Pages */}
+              <Route path="/dashboard/purchase/vendor-po" element={<VendorPO />} />
+              <Route path="/dashboard/purchase/my-po" element={<MyPO />} />
+              <Route path="/dashboard/purchase/expenses" element={<Expenses />} />
+              
               {/* Purchase Report Routes */}
               <Route path="/dashboard/purchase/order-report" element={<PurchaseOrderReport />} />
               <Route path="/dashboard/purchase/pending-orders" element={<PendingPurchaseOrders />} />
@@ -63,6 +74,7 @@ const App = () => (
               <Route path="/dashboard/inventory/supplier-performance" element={<SupplierPerformance />} />
               
               {/* Sales Report Routes */}
+              <Route path="/dashboard/sales/invoices" element={<Invoices />} />
               <Route path="/dashboard/sales/customer-orders" element={<CustomerOrderHistory />} />
               <Route path="/dashboard/sales/returned-items" element={<ReturnedItems />} />
               

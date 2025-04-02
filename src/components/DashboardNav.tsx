@@ -20,16 +20,29 @@ import {
   FileText,
   Users,
   CreditCard,
-  Settings
+  Settings,
+  FileInvoice,
+  DollarSign,
+  ReceiptText
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { useState } from "react";
 
 export function DashboardNav() {
   const location = useLocation();
   const { profile } = useAuth();
+  const [expandedItems, setExpandedItems] = useState<string[]>([]);
   
   const isActive = (path: string) => {
     return location.pathname.startsWith(path);
+  };
+  
+  const toggleExpanded = (title: string) => {
+    setExpandedItems(prev => 
+      prev.includes(title) 
+        ? prev.filter(item => item !== title) 
+        : [...prev, title]
+    );
   };
   
   // Base menu items visible to all roles
@@ -45,12 +58,16 @@ export function DashboardNav() {
       icon: ShoppingCart,
       subItems: [
         {
-          title: "Purchase Order Report",
-          path: "/dashboard/purchase/order-report"
+          title: "Vendor PO",
+          path: "/dashboard/purchase/vendor-po"
         },
         {
-          title: "Pending Purchase Orders",
-          path: "/dashboard/purchase/pending-orders"
+          title: "My PO",
+          path: "/dashboard/purchase/my-po"
+        },
+        {
+          title: "Expenses",
+          path: "/dashboard/purchase/expenses"
         }
       ]
     },
@@ -78,6 +95,10 @@ export function DashboardNav() {
       path: "/dashboard/sales",
       icon: BarChart3,
       subItems: [
+        {
+          title: "Invoices",
+          path: "/dashboard/sales/invoices"
+        },
         {
           title: "Customer Order History",
           path: "/dashboard/sales/customer-orders"
@@ -155,8 +176,9 @@ export function DashboardNav() {
                 asChild
                 isActive={isActive(item.path)}
                 tooltip={item.title}
+                onClick={() => item.subItems && toggleExpanded(item.title)}
               >
-                <Link to={item.path}>
+                <Link to={item.subItems ? "#" : item.path}>
                   <item.icon />
                   <span>{item.title}</span>
                 </Link>
