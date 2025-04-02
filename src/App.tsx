@@ -14,6 +14,7 @@ import Dashboard from "./pages/Dashboard";
 import InventoryPage from "./pages/InventoryPage";
 import SalesPage from "./pages/SalesPage";
 import SuppliersPage from "./pages/SuppliersPage";
+import ReportsPage from "./pages/ReportsPage";
 import NotFound from "./pages/NotFound";
 
 // Purchase Reports
@@ -50,6 +51,7 @@ const App = () => (
               <Route path="/dashboard/inventory" element={<InventoryPage />} />
               <Route path="/dashboard/sales" element={<SalesPage />} />
               <Route path="/dashboard/suppliers" element={<SuppliersPage />} />
+              <Route path="/dashboard/reports" element={<ReportsPage />} />
               
               {/* Purchase Report Routes */}
               <Route path="/dashboard/purchase/order-report" element={<PurchaseOrderReport />} />
