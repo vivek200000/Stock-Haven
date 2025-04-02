@@ -6,8 +6,8 @@ import { Label } from '@/components/ui/label';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/components/ui/use-toast';
-import QRCode from 'qrcode.react';
-import speakeasy from 'speakeasy';
+import { QRCodeCanvas } from 'qrcode.react';
+import * as speakeasy from 'speakeasy';
 
 export const TwoFactorSetup = () => {
   const { user, profile } = useAuth();
@@ -85,7 +85,7 @@ export const TwoFactorSetup = () => {
         return (
           <div className="space-y-4">
             <h3>Google Authenticator Setup</h3>
-            <QRCode value={secret.otpauth_url || ''} />
+            <QRCodeCanvas value={secret.otpauth_url || ''} />
             <p>Scan this QR code with Google Authenticator</p>
             <div>
               <Label>Or enter this secret key manually:</Label>

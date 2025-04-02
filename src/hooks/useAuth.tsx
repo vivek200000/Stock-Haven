@@ -166,16 +166,29 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const verifyTwoFactorCode = async (code: string): Promise<boolean> => {
+    if (!user) return false;
+    
     if (twoFactorMethod === 'google') {
-      const { data } = await supabase
-        .from('user_mfa')
-        .select('google_auth_secret')
-        .eq('user_id', user?.id)
-        .single();
+      try {
+        const { data, error } = await supabase
+          .from('user_mfa')
+          .select('google_auth_secret')
+          .eq('user_id', user.id)
+          .single();
 
-      return verifyGoogleAuthenticatorCode(data.google_auth_secret, code);
+        if (error || !data) {
+          console.error('Error fetching Google Auth secret:', error);
+          return false;
+        }
+
+        return verifyGoogleAuthenticatorCode(data.google_auth_secret, code);
+      } catch (error) {
+        console.error('Error verifying Google Auth code:', error);
+        return false;
+      }
     }
 
+    // For email OTP verification
     // Implement email OTP verification logic here
     return false;
   };

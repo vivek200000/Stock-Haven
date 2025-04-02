@@ -1,7 +1,7 @@
 
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import speakeasy from 'speakeasy';
+import * as speakeasy from 'speakeasy';
 
 export const useTwoFactor = () => {
   const [twoFactorRequired, setTwoFactorRequired] = useState(false);
