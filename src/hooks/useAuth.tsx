@@ -4,6 +4,7 @@ import { toast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { User, Session } from "@supabase/supabase-js";
 import { Database } from "@/integrations/supabase/types";
+import { useTwoFactor } from "./useTwoFactor";
 
 type Profile = Database['public']['Tables']['profiles']['Row'];
 
@@ -15,6 +16,11 @@ interface AuthContextType {
   signUp: (name: string, email: string, password: string, role: string) => Promise<void>;
   signOut: () => Promise<void>;
   loading: boolean;
+  twoFactor: {
+    required: boolean;
+    method: 'email' | 'google' | null;
+    verify: (code: string) => Promise<boolean>;
+  };
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -24,33 +30,30 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  
+  const { 
+    twoFactorRequired, 
+    twoFactorMethod,
+    checkTwoFactorRequirement,
+    verifyGoogleAuthenticatorCode 
+  } = useTwoFactor();
 
   useEffect(() => {
-    // Set up auth state listener first
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
         
         if (session?.user) {
-          // Defer profile fetching with setTimeout to avoid Supabase deadlock
           setTimeout(async () => {
             await fetchUserProfile(session.user.id);
+            await checkTwoFactorRequirement(session.user.id);
             
-            // Log user activity
-            if (event === 'SIGNED_IN') {
-              await supabase.rpc('log_activity', {
-                user_id: session.user.id,
-                action: 'login',
-                metadata: {}
-              });
-            } else if (event === 'SIGNED_OUT') {
-              await supabase.rpc('log_activity', {
-                user_id: session.user.id,
-                action: 'logout',
-                metadata: {}
-              });
-            }
+            await supabase.rpc('log_activity', {
+              user_id: session.user.id,
+              action: event === 'SIGNED_IN' ? 'login' : 'logout',
+              metadata: {}
+            });
           }, 0);
         } else {
           setProfile(null);
@@ -58,7 +61,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
     );
 
-    // Check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
@@ -163,8 +165,38 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const verifyTwoFactorCode = async (code: string): Promise<boolean> => {
+    if (twoFactorMethod === 'google') {
+      const { data } = await supabase
+        .from('user_mfa')
+        .select('google_auth_secret')
+        .eq('user_id', user?.id)
+        .single();
+
+      return verifyGoogleAuthenticatorCode(data.google_auth_secret, code);
+    }
+
+    // Implement email OTP verification logic here
+    return false;
+  };
+
   return (
-    <AuthContext.Provider value={{ user, profile, session, signIn, signUp, signOut, loading }}>
+    <AuthContext.Provider 
+      value={{ 
+        user, 
+        profile, 
+        session, 
+        signIn, 
+        signUp, 
+        signOut, 
+        loading,
+        twoFactor: {
+          required: twoFactorRequired,
+          method: twoFactorMethod,
+          verify: verifyTwoFactorCode
+        }
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
