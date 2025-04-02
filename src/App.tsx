@@ -16,6 +16,19 @@ import SalesPage from "./pages/SalesPage";
 import SuppliersPage from "./pages/SuppliersPage";
 import NotFound from "./pages/NotFound";
 
+// Purchase Reports
+import PurchaseOrderReport from "./pages/reports/purchase/PurchaseOrderReport";
+import PendingPurchaseOrders from "./pages/reports/purchase/PendingPurchaseOrders";
+
+// Inventory Reports
+import InventoryPurchaseReport from "./pages/reports/inventory/PurchaseOrderReport";
+import InventoryPendingOrders from "./pages/reports/inventory/PendingOrdersReport";
+import SupplierPerformance from "./pages/reports/inventory/SupplierPerformance";
+
+// Sales Reports
+import CustomerOrderHistory from "./pages/reports/sales/CustomerOrderHistory";
+import ReturnedItems from "./pages/reports/sales/ReturnedItems";
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -34,6 +47,20 @@ const App = () => (
               <Route path="/dashboard/inventory" element={<InventoryPage />} />
               <Route path="/dashboard/sales" element={<SalesPage />} />
               <Route path="/dashboard/suppliers" element={<SuppliersPage />} />
+              
+              {/* Purchase Report Routes */}
+              <Route path="/dashboard/purchase/order-report" element={<PurchaseOrderReport />} />
+              <Route path="/dashboard/purchase/pending-orders" element={<PendingPurchaseOrders />} />
+              
+              {/* Inventory Report Routes */}
+              <Route path="/dashboard/inventory/purchase-report" element={<InventoryPurchaseReport />} />
+              <Route path="/dashboard/inventory/pending-orders" element={<InventoryPendingOrders />} />
+              <Route path="/dashboard/inventory/supplier-performance" element={<SupplierPerformance />} />
+              
+              {/* Sales Report Routes */}
+              <Route path="/dashboard/sales/customer-orders" element={<CustomerOrderHistory />} />
+              <Route path="/dashboard/sales/returned-items" element={<ReturnedItems />} />
+              
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>

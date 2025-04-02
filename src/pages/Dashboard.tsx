@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
@@ -33,6 +34,7 @@ export default function Dashboard() {
   const [isEditingInventory, setIsEditingInventory] = useState(false);
   const [editedItem, setEditedItem] = useState<InventoryItem | null>(null);
   const [isResetDialogOpen, setIsResetDialogOpen] = useState(false);
+  const [isResetting, setIsResetting] = useState(false);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -117,10 +119,12 @@ export default function Dashboard() {
   
   const handleResetInventory = async () => {
     try {
+      setIsResetting(true);
+      
       const { error } = await supabase
         .from('inventory')
         .update({ stock_quantity: 0 })
-        .gt('id', '0');
+        .gt('id', '0'); // This ensures we update all records
       
       if (error) throw error;
       
@@ -137,6 +141,8 @@ export default function Dashboard() {
         description: "There was a problem resetting the inventory",
         variant: "destructive"
       });
+    } finally {
+      setIsResetting(false);
     }
   };
 
@@ -172,8 +178,12 @@ export default function Dashboard() {
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                   <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction onClick={handleResetInventory} className="bg-destructive text-destructive-foreground">
-                    Reset
+                  <AlertDialogAction 
+                    onClick={handleResetInventory} 
+                    className="bg-destructive text-destructive-foreground"
+                    disabled={isResetting}
+                  >
+                    {isResetting ? 'Resetting...' : 'Reset'}
                   </AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>

@@ -5,19 +5,19 @@ import {
   SidebarMenuButton,
   SidebarGroup,
   SidebarGroupLabel,
-  SidebarGroupContent
+  SidebarGroupContent,
+  SidebarMenuSub,
+  SidebarMenuSubItem,
+  SidebarMenuSubButton
 } from "@/components/ui/sidebar";
 import { Link, useLocation } from "react-router-dom";
 import { 
   Home, 
   ShoppingCart, 
   Package, 
-  Factory, 
   BarChart3, 
-  Users, 
   Truck, 
-  FileText,
-  Settings
+  FileText
 } from "lucide-react";
 
 export function DashboardNav() {
@@ -36,27 +36,51 @@ export function DashboardNav() {
     {
       title: "Purchase",
       path: "/dashboard/purchase",
-      icon: ShoppingCart
+      icon: ShoppingCart,
+      subItems: [
+        {
+          title: "Purchase Order Report",
+          path: "/dashboard/purchase/order-report"
+        },
+        {
+          title: "Pending Purchase Orders",
+          path: "/dashboard/purchase/pending-orders"
+        }
+      ]
     },
     {
       title: "Inventory",
       path: "/dashboard/inventory",
-      icon: Package
-    },
-    {
-      title: "Production",
-      path: "/dashboard/production",
-      icon: Factory
+      icon: Package,
+      subItems: [
+        {
+          title: "Purchase Order Report",
+          path: "/dashboard/inventory/purchase-report"
+        },
+        {
+          title: "Pending Purchase Orders",
+          path: "/dashboard/inventory/pending-orders"
+        },
+        {
+          title: "Supplier Performance",
+          path: "/dashboard/inventory/supplier-performance"
+        }
+      ]
     },
     {
       title: "Sales",
       path: "/dashboard/sales",
-      icon: BarChart3
-    },
-    {
-      title: "Customers",
-      path: "/dashboard/customers",
-      icon: Users
+      icon: BarChart3,
+      subItems: [
+        {
+          title: "Customer Order History",
+          path: "/dashboard/sales/customer-orders"
+        },
+        {
+          title: "Returned Items",
+          path: "/dashboard/sales/returned-items"
+        }
+      ]
     },
     {
       title: "Suppliers",
@@ -67,11 +91,6 @@ export function DashboardNav() {
       title: "Reports",
       path: "/dashboard/reports",
       icon: FileText
-    },
-    {
-      title: "Settings",
-      path: "/dashboard/settings",
-      icon: Settings
     }
   ];
   
@@ -92,6 +111,23 @@ export function DashboardNav() {
                   <span>{item.title}</span>
                 </Link>
               </SidebarMenuButton>
+              
+              {item.subItems && (
+                <SidebarMenuSub>
+                  {item.subItems.map((subItem) => (
+                    <SidebarMenuSubItem key={subItem.path}>
+                      <SidebarMenuSubButton
+                        asChild
+                        isActive={isActive(subItem.path)}
+                      >
+                        <Link to={subItem.path}>
+                          <span>{subItem.title}</span>
+                        </Link>
+                      </SidebarMenuSubButton>
+                    </SidebarMenuSubItem>
+                  ))}
+                </SidebarMenuSub>
+              )}
             </SidebarMenuItem>
           ))}
         </SidebarMenu>
