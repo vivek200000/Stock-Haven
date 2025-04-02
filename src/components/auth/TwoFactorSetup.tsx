@@ -7,7 +7,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/components/ui/use-toast';
 import { QRCodeCanvas } from 'qrcode.react';
-import * as speakeasy from 'speakeasy';
+import speakeasy from 'speakeasy';
 
 export const TwoFactorSetup = () => {
   const { user, profile } = useAuth();
