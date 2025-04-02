@@ -6,7 +6,8 @@ import {
   CardContent, 
   CardDescription, 
   CardHeader, 
-  CardTitle 
+  CardTitle,
+  CardFooter
 } from "@/components/ui/card";
 import { 
   Table, 
@@ -23,183 +24,208 @@ import {
   SelectTrigger, 
   SelectValue 
 } from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { 
-  Download, 
+  Tabs, 
+  TabsContent, 
+  TabsList, 
+  TabsTrigger 
+} from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
+import { 
   Search, 
+  Download, 
   TrendingUp, 
-  TrendingDown, 
-  AlertCircle, 
-  CheckCircle, 
-  Truck, 
   Clock, 
-  DollarSign 
+  AlertTriangle,
+  TrendingDown,
+  Check,
+  BarChart3,
+  Timer,
+  Truck
 } from "lucide-react";
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent
+} from "@/components/ui/chart";
+import { 
+  PieChart, 
+  Pie, 
+  Cell, 
+  ResponsiveContainer,
+  Legend,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip
+} from "recharts";
+import { useToast } from "@/components/ui/use-toast";
 
 // Sample data for supplier performance
 const supplierPerformanceData = [
   {
-    id: 1,
-    name: "Auto Parts Inc.",
-    deliveryRating: 92,
-    qualityRating: 90,
-    pricingRating: 85,
-    onTimeDelivery: "93%",
-    defectRate: "2.1%",
-    responseTime: "24h",
-    lastOrder: "2023-12-10",
-    totalOrders: 24,
-    returnRate: "1.8%",
-    priceTrend: "stable",
-    status: "Excellent"
+    id: "SUP001",
+    name: "Tata Auto Parts",
+    onTimeDelivery: 95,
+    orderAccuracy: 98,
+    responseTime: 4.2,
+    qualityRating: 4.8,
+    costTrend: "stable",
+    totalOrders: 156,
+    returnRate: 1.2
   },
   {
-    id: 2,
-    name: "Brake Systems Ltd.",
-    deliveryRating: 84,
-    qualityRating: 88,
-    pricingRating: 80,
-    onTimeDelivery: "85%",
-    defectRate: "3.0%",
-    responseTime: "36h",
-    lastOrder: "2023-12-05",
-    totalOrders: 18,
-    returnRate: "2.5%",
-    priceTrend: "increasing",
-    status: "Good"
+    id: "SUP002",
+    name: "Ashok Leyland Spares",
+    onTimeDelivery: 88,
+    orderAccuracy: 94,
+    responseTime: 6.5,
+    qualityRating: 4.5,
+    costTrend: "increasing",
+    totalOrders: 102,
+    returnRate: 2.1
   },
   {
-    id: 3,
-    name: "Engine Components Co.",
-    deliveryRating: 75,
-    qualityRating: 80,
-    pricingRating: 90,
-    onTimeDelivery: "78%",
-    defectRate: "4.2%",
-    responseTime: "48h",
-    lastOrder: "2023-11-28",
-    totalOrders: 15,
-    returnRate: "3.1%",
-    priceTrend: "decreasing",
-    status: "Average"
+    id: "SUP003",
+    name: "Mahindra Components",
+    onTimeDelivery: 92,
+    orderAccuracy: 96,
+    responseTime: 5.1,
+    qualityRating: 4.6,
+    costTrend: "decreasing",
+    totalOrders: 143,
+    returnRate: 1.8
   },
   {
-    id: 4,
-    name: "Electrical Parts Suppliers",
-    deliveryRating: 88,
-    qualityRating: 85,
-    pricingRating: 78,
-    onTimeDelivery: "90%",
-    defectRate: "2.8%",
-    responseTime: "24h",
-    lastOrder: "2023-12-08",
-    totalOrders: 20,
-    returnRate: "2.3%",
-    priceTrend: "stable",
-    status: "Good"
+    id: "SUP004",
+    name: "Maruti Genuine Parts",
+    onTimeDelivery: 96,
+    orderAccuracy: 99,
+    responseTime: 3.8,
+    qualityRating: 4.9,
+    costTrend: "stable",
+    totalOrders: 188,
+    returnRate: 0.9
   },
   {
-    id: 5,
-    name: "Filter Manufacturers",
-    deliveryRating: 94,
-    qualityRating: 92,
-    pricingRating: 82,
-    onTimeDelivery: "96%",
-    defectRate: "1.5%",
-    responseTime: "12h",
-    lastOrder: "2023-12-12",
-    totalOrders: 22,
-    returnRate: "1.2%",
-    priceTrend: "stable",
-    status: "Excellent"
+    id: "SUP005",
+    name: "Bosch India",
+    onTimeDelivery: 94,
+    orderAccuracy: 97,
+    responseTime: 4.0,
+    qualityRating: 4.7,
+    costTrend: "stable",
+    totalOrders: 176,
+    returnRate: 1.1
   },
   {
-    id: 6,
-    name: "Auto Lighting Solutions",
-    deliveryRating: 78,
-    qualityRating: 82,
-    pricingRating: 88,
-    onTimeDelivery: "80%",
-    defectRate: "3.5%",
-    responseTime: "36h",
-    lastOrder: "2023-12-02",
-    totalOrders: 16,
-    returnRate: "2.7%",
-    priceTrend: "increasing",
-    status: "Average"
+    id: "SUP006",
+    name: "Apollo Tyres",
+    onTimeDelivery: 91,
+    orderAccuracy: 95,
+    responseTime: 5.3,
+    qualityRating: 4.4,
+    costTrend: "increasing",
+    totalOrders: 89,
+    returnRate: 1.7
   },
   {
-    id: 7,
-    name: "Glass & Mirrors Co.",
-    deliveryRating: 72,
-    qualityRating: 75,
-    pricingRating: 92,
-    onTimeDelivery: "70%",
-    defectRate: "4.8%",
-    responseTime: "72h",
-    lastOrder: "2023-11-25",
-    totalOrders: 10,
-    returnRate: "3.9%",
-    priceTrend: "decreasing",
-    status: "Needs Improvement"
+    id: "SUP007",
+    name: "JK Tyres",
+    onTimeDelivery: 87,
+    orderAccuracy: 93,
+    responseTime: 6.2,
+    qualityRating: 4.2,
+    costTrend: "increasing",
+    totalOrders: 72,
+    returnRate: 2.3
+  },
+  {
+    id: "SUP008",
+    name: "Exide Batteries",
+    onTimeDelivery: 93,
+    orderAccuracy: 96,
+    responseTime: 4.8,
+    qualityRating: 4.6,
+    costTrend: "stable",
+    totalOrders: 124,
+    returnRate: 1.5
   }
 ];
 
+// Sample data for time period analysis
+const timeFrames = {
+  "1month": { label: "1 Month" },
+  "3months": { label: "3 Months" },
+  "6months": { label: "6 Months" },
+  "12months": { label: "12 Months" }
+};
+
 export default function SupplierPerformance() {
-  const [statusFilter, setStatusFilter] = useState<string>("all");
-  const [searchTerm, setSearchTerm] = useState<string>("");
-  const [sortBy, setSortBy] = useState<string>("deliveryRating");
-  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [supplierFilter, setSupplierFilter] = useState("all");
+  const [timeFrame, setTimeFrame] = useState("6months");
+  const [activeTab, setActiveTab] = useState("all");
+  const { toast } = useToast();
   
-  const handleSort = (column: string) => {
-    if (sortBy === column) {
-      setSortOrder(sortOrder === "asc" ? "desc" : "asc");
-    } else {
-      setSortBy(column);
-      setSortOrder("desc");
-    }
+  const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8'];
+  
+  // Filtered data based on search and filters
+  const filteredData = supplierPerformanceData.filter(supplier => {
+    const matchesSearch = 
+      supplier.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      supplier.id.toLowerCase().includes(searchTerm.toLowerCase());
+      
+    return matchesSearch;
+  });
+  
+  // Sample performance breakdown for pie chart
+  const performanceBreakdown = [
+    { name: "Excellent (>95%)", value: 3 },
+    { name: "Good (90-95%)", value: 2 },
+    { name: "Average (85-90%)", value: 2 },
+    { name: "Below Average (<85%)", value: 1 }
+  ];
+  
+  // Sample data for time trend analysis
+  const deliveryTrendData = [
+    { month: 'Jan', Tata: 92, Maruti: 95, Bosch: 90 },
+    { month: 'Feb', Tata: 93, Maruti: 96, Bosch: 91 },
+    { month: 'Mar', Tata: 94, Maruti: 94, Bosch: 93 },
+    { month: 'Apr', Tata: 91, Maruti: 95, Bosch: 92 },
+    { month: 'May', Tata: 95, Maruti: 97, Bosch: 94 },
+    { month: 'Jun', Tata: 96, Maruti: 98, Bosch: 95 },
+  ];
+  
+  // Get sales quantity breakdown by time period
+  const getSalesBreakdown = () => {
+    // This would normally come from an API call
+    return [
+      { name: "Engine Parts", "1month": 120, "3months": 350, "6months": 720, "12months": 1450 },
+      { name: "Electrical", "1month": 85, "3months": 260, "6months": 540, "12months": 1100 },
+      { name: "Body Parts", "1month": 65, "3months": 200, "6months": 420, "12months": 850 },
+      { name: "Fluids & Oils", "1month": 45, "3months": 135, "6months": 270, "12months": 550 },
+      { name: "Other", "1month": 25, "3months": 80, "6months": 160, "12months": 320 }
+    ];
   };
   
-  const filteredSuppliers = supplierPerformanceData
-    .filter(supplier => {
-      const matchesSearch = supplier.name.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesStatus = statusFilter === "all" || supplier.status.toLowerCase() === statusFilter.toLowerCase();
-      return matchesSearch && matchesStatus;
-    })
-    .sort((a, b) => {
-      const aValue = a[sortBy as keyof typeof a];
-      const bValue = b[sortBy as keyof typeof b];
-      
-      if (typeof aValue === 'number' && typeof bValue === 'number') {
-        return sortOrder === 'asc' ? aValue - bValue : bValue - aValue;
-      } else if (typeof aValue === 'string' && typeof bValue === 'string') {
-        return sortOrder === 'asc' 
-          ? aValue.localeCompare(bValue) 
-          : bValue.localeCompare(aValue);
-      }
-      return 0;
+  const handleExportReport = () => {
+    toast({
+      title: "Exporting Report",
+      description: "The supplier performance report is being exported to CSV.",
     });
-  
-  const getStatusBadgeClass = (status: string) => {
-    switch (status.toLowerCase()) {
-      case "excellent":
-        return "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300";
-      case "good":
-        return "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300";
-      case "average":
-        return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300";
-      case "needs improvement":
-        return "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300";
-      default:
-        return "bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300";
-    }
+    
+    // Simulating download process
+    setTimeout(() => {
+      toast({
+        title: "Export Complete",
+        description: "Your report has been successfully exported.",
+      });
+    }, 1500);
   };
   
   return (
@@ -209,10 +235,10 @@ export default function SupplierPerformance() {
           <div>
             <h1 className="text-3xl font-bold tracking-tight">Supplier Performance</h1>
             <p className="text-muted-foreground">
-              Evaluate and track supplier metrics for better inventory management
+              Analyze supplier delivery times, order accuracy, and cost trends
             </p>
           </div>
-          <Button className="gap-2">
+          <Button onClick={handleExportReport} className="gap-2">
             <Download className="h-4 w-4" />
             Export Report
           </Button>
@@ -221,45 +247,120 @@ export default function SupplierPerformance() {
         <div className="grid gap-4 md:grid-cols-3">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                Top Performer
-              </CardTitle>
-              <CheckCircle className="h-4 w-4 text-green-500" />
+              <CardTitle className="text-sm font-medium text-muted-foreground">Average On-Time Delivery</CardTitle>
+              <TrendingUp className="h-4 w-4 text-green-500" />
             </CardHeader>
             <CardContent>
-              <div className="font-bold">Filter Manufacturers</div>
-              <div className="text-xs text-muted-foreground mt-1">
-                94% delivery rating, 1.5% defect rate
-              </div>
+              <div className="text-2xl font-bold">92.8%</div>
+              <p className="text-xs text-muted-foreground mt-1">
+                Across all suppliers
+              </p>
             </CardContent>
           </Card>
           
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                Needs Improvement
-              </CardTitle>
-              <AlertCircle className="h-4 w-4 text-red-500" />
+              <CardTitle className="text-sm font-medium text-muted-foreground">Average Response Time</CardTitle>
+              <Clock className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="font-bold">Glass & Mirrors Co.</div>
-              <div className="text-xs text-muted-foreground mt-1">
-                70% on-time delivery, 4.8% defect rate
-              </div>
+              <div className="text-2xl font-bold">5.0 hrs</div>
+              <p className="text-xs text-muted-foreground mt-1">
+                For quote requests
+              </p>
             </CardContent>
           </Card>
           
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                Average Response Time
-              </CardTitle>
-              <Clock className="h-4 w-4 text-blue-500" />
+              <CardTitle className="text-sm font-medium text-muted-foreground">Average Return Rate</CardTitle>
+              <AlertTriangle className="h-4 w-4 text-amber-500" />
             </CardHeader>
             <CardContent>
-              <div className="font-bold">36 hours</div>
-              <div className="text-xs text-muted-foreground mt-1">
-                Average supplier response time to inquiries
+              <div className="text-2xl font-bold">1.6%</div>
+              <p className="text-xs text-muted-foreground mt-1">
+                For all shipped items
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+        
+        <div className="grid gap-4 md:grid-cols-2">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <BarChart3 className="h-5 w-5" />
+                Performance Breakdown
+              </CardTitle>
+              <CardDescription>
+                Supplier performance by category
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="h-80">
+                <ChartContainer config={{
+                  'Excellent (>95%)': { color: COLORS[0] },
+                  'Good (90-95%)': { color: COLORS[1] },
+                  'Average (85-90%)': { color: COLORS[2] },
+                  'Below Average (<85%)': { color: COLORS[3] },
+                }}>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={performanceBreakdown}
+                        cx="50%"
+                        cy="50%"
+                        labelLine={false}
+                        outerRadius={100}
+                        fill="#8884d8"
+                        dataKey="value"
+                        label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                      >
+                        {performanceBreakdown.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                        ))}
+                      </Pie>
+                      <Legend />
+                      <ChartTooltip content={<ChartTooltipContent />} />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </ChartContainer>
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <TrendingUp className="h-5 w-5" />
+                Delivery Trends
+              </CardTitle>
+              <CardDescription>
+                On-time delivery percentage over time for top suppliers
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="h-80">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart
+                    data={deliveryTrendData}
+                    margin={{
+                      top: 20,
+                      right: 30,
+                      left: 20,
+                      bottom: 5,
+                    }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="month" />
+                    <YAxis domain={[85, 100]} />
+                    <Tooltip />
+                    <Legend />
+                    <Bar dataKey="Tata" fill="#8884d8" />
+                    <Bar dataKey="Maruti" fill="#82ca9d" />
+                    <Bar dataKey="Bosch" fill="#ffc658" />
+                  </BarChart>
+                </ResponsiveContainer>
               </div>
             </CardContent>
           </Card>
@@ -269,180 +370,229 @@ export default function SupplierPerformance() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Truck className="h-5 w-5" />
-              Supplier Performance Analysis
+              Sales Quantity Breakdown
             </CardTitle>
-            <CardDescription className="flex flex-col gap-2 sm:flex-row sm:items-center">
-              <div className="flex gap-2">
-                <Select value={statusFilter} onValueChange={setStatusFilter}>
-                  <SelectTrigger className="w-[180px]">
-                    <SelectValue placeholder="Filter by status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Suppliers</SelectItem>
-                    <SelectItem value="excellent">Excellent</SelectItem>
-                    <SelectItem value="good">Good</SelectItem>
-                    <SelectItem value="average">Average</SelectItem>
-                    <SelectItem value="needs improvement">Needs Improvement</SelectItem>
-                  </SelectContent>
-                </Select>
-                
-                <div className="relative flex items-center">
-                  <Search className="absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                  <Input
-                    placeholder="Search suppliers..." 
-                    className="pl-8 h-10"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                  />
-                </div>
-              </div>
-              
-              <div className="text-sm mt-2 sm:mt-0">
-                {filteredSuppliers.length} suppliers found
-              </div>
+            <CardDescription>
+              Parts sales quantity by category and time period
             </CardDescription>
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mt-4">
+              <Select value={timeFrame} onValueChange={setTimeFrame}>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Select Time Period" />
+                </SelectTrigger>
+                <SelectContent>
+                  {Object.entries(timeFrames).map(([key, { label }]) => (
+                    <SelectItem key={key} value={key}>{label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              
+              <div className="relative w-full max-w-sm">
+                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search suppliers..." 
+                  className="pl-8"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              </div>
+            </div>
           </CardHeader>
           <CardContent>
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="cursor-pointer" onClick={() => handleSort("name")}>
-                    Supplier {sortBy === "name" && (sortOrder === "asc" ? "↑" : "↓")}
-                  </TableHead>
-                  <TableHead className="cursor-pointer" onClick={() => handleSort("deliveryRating")}>
-                    Delivery {sortBy === "deliveryRating" && (sortOrder === "asc" ? "↑" : "↓")}
-                  </TableHead>
-                  <TableHead className="cursor-pointer" onClick={() => handleSort("qualityRating")}>
-                    Quality {sortBy === "qualityRating" && (sortOrder === "asc" ? "↑" : "↓")}
-                  </TableHead>
-                  <TableHead className="cursor-pointer" onClick={() => handleSort("pricingRating")}>
-                    Pricing {sortBy === "pricingRating" && (sortOrder === "asc" ? "↑" : "↓")}
-                  </TableHead>
-                  <TableHead>On-Time</TableHead>
-                  <TableHead>Defect Rate</TableHead>
-                  <TableHead>Price Trend</TableHead>
-                  <TableHead className="cursor-pointer" onClick={() => handleSort("status")}>
-                    Status {sortBy === "status" && (sortOrder === "asc" ? "↑" : "↓")}
-                  </TableHead>
+                  <TableHead>Category</TableHead>
+                  <TableHead className="text-right">1 Month</TableHead>
+                  <TableHead className="text-right">3 Months</TableHead>
+                  <TableHead className="text-right">6 Months</TableHead>
+                  <TableHead className="text-right">12 Months</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredSuppliers.map((supplier) => (
-                  <TableRow key={supplier.id}>
-                    <TableCell className="font-medium">{supplier.name}</TableCell>
-                    <TableCell>
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <div className="flex items-center gap-2">
-                              <div className="bg-gray-200 dark:bg-gray-700 h-2 w-24 rounded-full overflow-hidden">
-                                <div 
-                                  className={`h-full ${
-                                    supplier.deliveryRating >= 90 ? 'bg-green-500' :
-                                    supplier.deliveryRating >= 80 ? 'bg-blue-500' :
-                                    supplier.deliveryRating >= 70 ? 'bg-yellow-500' :
-                                    'bg-red-500'
-                                  }`} 
-                                  style={{ width: `${supplier.deliveryRating}%` }}
-                                />
-                              </div>
-                              <span>{supplier.deliveryRating}%</span>
-                            </div>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>On-time delivery: {supplier.onTimeDelivery}</p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                    </TableCell>
-                    <TableCell>
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <div className="flex items-center gap-2">
-                              <div className="bg-gray-200 dark:bg-gray-700 h-2 w-24 rounded-full overflow-hidden">
-                                <div 
-                                  className={`h-full ${
-                                    supplier.qualityRating >= 90 ? 'bg-green-500' :
-                                    supplier.qualityRating >= 80 ? 'bg-blue-500' :
-                                    supplier.qualityRating >= 70 ? 'bg-yellow-500' :
-                                    'bg-red-500'
-                                  }`} 
-                                  style={{ width: `${supplier.qualityRating}%` }}
-                                />
-                              </div>
-                              <span>{supplier.qualityRating}%</span>
-                            </div>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>Defect rate: {supplier.defectRate}</p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                    </TableCell>
-                    <TableCell>
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <div className="flex items-center gap-2">
-                              <div className="bg-gray-200 dark:bg-gray-700 h-2 w-24 rounded-full overflow-hidden">
-                                <div 
-                                  className={`h-full ${
-                                    supplier.pricingRating >= 90 ? 'bg-green-500' :
-                                    supplier.pricingRating >= 80 ? 'bg-blue-500' :
-                                    supplier.pricingRating >= 70 ? 'bg-yellow-500' :
-                                    'bg-red-500'
-                                  }`} 
-                                  style={{ width: `${supplier.pricingRating}%` }}
-                                />
-                              </div>
-                              <span>{supplier.pricingRating}%</span>
-                            </div>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>Pricing competitiveness rating</p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                    </TableCell>
-                    <TableCell>{supplier.onTimeDelivery}</TableCell>
-                    <TableCell>{supplier.defectRate}</TableCell>
-                    <TableCell>
-                      {supplier.priceTrend === "increasing" ? (
-                        <div className="flex items-center text-red-500">
-                          <TrendingUp className="h-4 w-4 mr-1" />
-                          Increasing
-                        </div>
-                      ) : supplier.priceTrend === "decreasing" ? (
-                        <div className="flex items-center text-green-500">
-                          <TrendingDown className="h-4 w-4 mr-1" />
-                          Decreasing
-                        </div>
-                      ) : (
-                        <div className="flex items-center text-blue-500">
-                          <DollarSign className="h-4 w-4 mr-1" />
-                          Stable
-                        </div>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${getStatusBadgeClass(supplier.status)}`}>
-                        {supplier.status}
-                      </span>
-                    </TableCell>
+                {getSalesBreakdown().map((row) => (
+                  <TableRow key={row.name}>
+                    <TableCell>{row.name}</TableCell>
+                    <TableCell className="text-right">{row["1month"].toLocaleString()}</TableCell>
+                    <TableCell className="text-right">{row["3months"].toLocaleString()}</TableCell>
+                    <TableCell className="text-right">{row["6months"].toLocaleString()}</TableCell>
+                    <TableCell className="text-right">{row["12months"].toLocaleString()}</TableCell>
                   </TableRow>
                 ))}
-                {filteredSuppliers.length === 0 && (
-                  <TableRow>
-                    <TableCell colSpan={8} className="h-24 text-center">
-                      No suppliers found matching your criteria
-                    </TableCell>
-                  </TableRow>
-                )}
               </TableBody>
             </Table>
           </CardContent>
         </Card>
+        
+        <Tabs defaultValue="all" onValueChange={setActiveTab} value={activeTab}>
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-4">
+            <TabsList className="h-9">
+              <TabsTrigger value="all" className="text-xs sm:text-sm">All Suppliers</TabsTrigger>
+              <TabsTrigger value="top" className="text-xs sm:text-sm">Top Performers</TabsTrigger>
+              <TabsTrigger value="poor" className="text-xs sm:text-sm">Needs Improvement</TabsTrigger>
+            </TabsList>
+          </div>
+          
+          <TabsContent value="all" className="mt-0">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <BarChart3 className="h-5 w-5" />
+                  Supplier Performance Metrics
+                </CardTitle>
+                <CardDescription>
+                  Detailed evaluation of all suppliers
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Supplier</TableHead>
+                      <TableHead className="text-right">On-Time Delivery</TableHead>
+                      <TableHead className="text-right">Order Accuracy</TableHead>
+                      <TableHead className="text-right">Response Time (hrs)</TableHead>
+                      <TableHead className="text-right">Quality Rating</TableHead>
+                      <TableHead>Cost Trend</TableHead>
+                      <TableHead className="text-right">Return Rate</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredData.map((supplier) => (
+                      <TableRow key={supplier.id}>
+                        <TableCell className="font-medium">{supplier.name}</TableCell>
+                        <TableCell className="text-right">
+                          <div className="flex items-center justify-end gap-2">
+                            {supplier.onTimeDelivery >= 95 ? (
+                              <Check className="h-4 w-4 text-green-500" />
+                            ) : supplier.onTimeDelivery >= 90 ? (
+                              <Check className="h-4 w-4 text-amber-500" />
+                            ) : (
+                              <AlertTriangle className="h-4 w-4 text-red-500" />
+                            )}
+                            {supplier.onTimeDelivery}%
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-right">{supplier.orderAccuracy}%</TableCell>
+                        <TableCell className="text-right">
+                          <div className="flex items-center justify-end gap-2">
+                            <Timer className="h-4 w-4 text-muted-foreground" />
+                            {supplier.responseTime}
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-right">{supplier.qualityRating}/5.0</TableCell>
+                        <TableCell>
+                          <Badge variant="outline" className={
+                            supplier.costTrend === "decreasing" 
+                              ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300 dark:border-green-500"
+                              : supplier.costTrend === "increasing" 
+                                ? "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300 dark:border-red-500"
+                                : "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-500"
+                          }>
+                            <div className="flex items-center gap-1">
+                              {supplier.costTrend === "decreasing" ? (
+                                <TrendingDown className="h-3 w-3" />
+                              ) : supplier.costTrend === "increasing" ? (
+                                <TrendingUp className="h-3 w-3" />
+                              ) : (
+                                <span className="h-3 w-3">―</span>
+                              )}
+                              {supplier.costTrend.charAt(0).toUpperCase() + supplier.costTrend.slice(1)}
+                            </div>
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-right">{supplier.returnRate}%</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </CardContent>
+              <CardFooter className="flex justify-between">
+                <p className="text-sm text-muted-foreground">
+                  Showing {filteredData.length} of {supplierPerformanceData.length} suppliers
+                </p>
+                <Button variant="outline" onClick={handleExportReport}>
+                  <Download className="h-4 w-4 mr-2" />
+                  Export Data
+                </Button>
+              </CardFooter>
+            </Card>
+          </TabsContent>
+          
+          <TabsContent value="top" className="mt-0">
+            <Card>
+              <CardContent className="pt-6">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Supplier</TableHead>
+                      <TableHead className="text-right">On-Time Delivery</TableHead>
+                      <TableHead className="text-right">Order Accuracy</TableHead>
+                      <TableHead className="text-right">Quality Rating</TableHead>
+                      <TableHead className="text-right">Total Orders</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredData
+                      .filter(s => s.onTimeDelivery >= 93)
+                      .sort((a, b) => b.onTimeDelivery - a.onTimeDelivery)
+                      .map((supplier) => (
+                      <TableRow key={supplier.id}>
+                        <TableCell className="font-medium">{supplier.name}</TableCell>
+                        <TableCell className="text-right">{supplier.onTimeDelivery}%</TableCell>
+                        <TableCell className="text-right">{supplier.orderAccuracy}%</TableCell>
+                        <TableCell className="text-right">{supplier.qualityRating}/5.0</TableCell>
+                        <TableCell className="text-right">{supplier.totalOrders}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+          </TabsContent>
+          
+          <TabsContent value="poor" className="mt-0">
+            <Card>
+              <CardContent className="pt-6">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Supplier</TableHead>
+                      <TableHead className="text-right">On-Time Delivery</TableHead>
+                      <TableHead className="text-right">Return Rate</TableHead>
+                      <TableHead>Cost Trend</TableHead>
+                      <TableHead className="text-right">Response Time</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredData
+                      .filter(s => s.onTimeDelivery < 93)
+                      .sort((a, b) => a.onTimeDelivery - b.onTimeDelivery)
+                      .map((supplier) => (
+                      <TableRow key={supplier.id}>
+                        <TableCell className="font-medium">{supplier.name}</TableCell>
+                        <TableCell className="text-right">{supplier.onTimeDelivery}%</TableCell>
+                        <TableCell className="text-right">{supplier.returnRate}%</TableCell>
+                        <TableCell>
+                          <Badge variant="outline" className={
+                            supplier.costTrend === "decreasing" 
+                              ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300 dark:border-green-500"
+                              : supplier.costTrend === "increasing" 
+                                ? "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300 dark:border-red-500"
+                                : "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-500"
+                          }>
+                            {supplier.costTrend}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-right">{supplier.responseTime} hrs</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </div>
     </DashboardLayout>
   );

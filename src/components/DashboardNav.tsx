@@ -17,17 +17,23 @@ import {
   Package, 
   BarChart3, 
   Truck, 
-  FileText
+  FileText,
+  Users,
+  CreditCard,
+  Settings
 } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
 
 export function DashboardNav() {
   const location = useLocation();
+  const { profile } = useAuth();
   
   const isActive = (path: string) => {
     return location.pathname.startsWith(path);
   };
   
-  const menuItems = [
+  // Base menu items visible to all roles
+  const baseMenuItems = [
     {
       title: "Dashboard",
       path: "/dashboard",
@@ -93,6 +99,50 @@ export function DashboardNav() {
       icon: FileText
     }
   ];
+  
+  // Additional menu items for Admin and Manager roles
+  const adminMenuItems = [
+    {
+      title: "Users",
+      path: "/dashboard/users",
+      icon: Users
+    },
+    {
+      title: "Billing",
+      path: "/dashboard/billing",
+      icon: CreditCard,
+      subItems: [
+        {
+          title: "Invoices",
+          path: "/dashboard/billing/invoices"
+        },
+        {
+          title: "Upload Documents",
+          path: "/dashboard/billing/upload"
+        }
+      ]
+    }
+  ];
+  
+  // Get menu items based on user role
+  const getMenuItemsByRole = () => {
+    const role = profile?.role?.toLowerCase() || 'user';
+    
+    if (role === 'admin' || role === 'manager') {
+      return [...baseMenuItems, ...adminMenuItems];
+    }
+    
+    if (role === 'supplier') {
+      // Suppliers only see limited menu items
+      return baseMenuItems.filter(item => 
+        ['Dashboard', 'Purchase', 'Inventory'].includes(item.title)
+      );
+    }
+    
+    return baseMenuItems;
+  };
+  
+  const menuItems = getMenuItemsByRole();
   
   return (
     <SidebarGroup>

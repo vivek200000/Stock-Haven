@@ -29,6 +29,9 @@ import SupplierPerformance from "./pages/reports/inventory/SupplierPerformance";
 import CustomerOrderHistory from "./pages/reports/sales/CustomerOrderHistory";
 import ReturnedItems from "./pages/reports/sales/ReturnedItems";
 
+// Billing
+import UploadDocuments from "./pages/billing/UploadDocuments";
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -60,6 +63,9 @@ const App = () => (
               {/* Sales Report Routes */}
               <Route path="/dashboard/sales/customer-orders" element={<CustomerOrderHistory />} />
               <Route path="/dashboard/sales/returned-items" element={<ReturnedItems />} />
+              
+              {/* Billing Routes */}
+              <Route path="/dashboard/billing/upload" element={<UploadDocuments />} />
               
               <Route path="*" element={<NotFound />} />
             </Routes>

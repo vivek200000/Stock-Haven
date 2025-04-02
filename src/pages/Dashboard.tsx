@@ -1,568 +1,478 @@
 
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useAuth } from "@/hooks/useAuth";
+import { useState, useEffect } from "react";
 import { DashboardLayout } from "@/components/DashboardLayout";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Package, Users, BarChart3, Truck, Edit, AlertTriangle, RotateCcw } from "lucide-react";
+import { 
+  BarChart3, 
+  PackageOpen, 
+  TrendingUp, 
+  Truck, 
+  Users, 
+  RefreshCcw,
+  ShoppingBag,
+  AlertTriangle,
+  CheckCircle
+} from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
-import { ChartContainer } from "@/components/ui/chart";
-import { Tooltip, PieChart, Pie, Cell, ResponsiveContainer, Legend } from "recharts";
-import { Database } from "@/integrations/supabase/types";
-import { useToast } from "@/hooks/use-toast";
-import { ThemeToggle } from "@/components/ThemeToggle";
+import { useToast } from "@/components/ui/use-toast";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent
+} from "@/components/ui/chart";
+import { PieChart, Pie, Cell, ResponsiveContainer, Legend } from "recharts";
 
-type InventoryItem = Database['public']['Tables']['inventory']['Row'];
-
-export default function Dashboard() {
-  const { user, loading } = useAuth();
-  const navigate = useNavigate();
+// Dashboard components for different roles
+const AdminDashboard = () => {
+  const [totalInventory, setTotalInventory] = useState(0);
+  const [ordersPending, setOrdersPending] = useState(25);
+  const [totalSales, setTotalSales] = useState(1254800);
+  const [totalSuppliers, setTotalSuppliers] = useState(24);
+  const [activeTab, setActiveTab] = useState("overview");
   const { toast } = useToast();
-  const [inventory, setInventory] = useState<InventoryItem[]>([]);
-  const [isEditingInventory, setIsEditingInventory] = useState(false);
-  const [editedItem, setEditedItem] = useState<InventoryItem | null>(null);
-  const [isResetDialogOpen, setIsResetDialogOpen] = useState(false);
-  const [isResetting, setIsResetting] = useState(false);
 
-  useEffect(() => {
-    if (!loading && !user) {
-      navigate("/signin");
-    }
-  }, [user, loading, navigate]);
-
-  useEffect(() => {
-    const fetchInventory = async () => {
-      try {
-        const { data, error } = await supabase
-          .from('inventory')
-          .select("*");
-
-        if (error) {
-          throw error;
-        }
-
-        setInventory(data || []);
-      } catch (error) {
-        console.error("Error fetching inventory:", error);
-      }
-    };
-
-    fetchInventory();
-    
-    const channel = supabase
-      .channel('dashboard-changes')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'inventory'
-        },
-        (payload) => {
-          fetchInventory();
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, []);
-
-  const categoryData = useCategoryData(inventory);
-  const stockLevelData = useStockLevelData(inventory);
+  // Sample data for the charts
   const salesData = [
-    { name: 'Engine Parts', value: 4300, color: '#8884d8' },
-    { name: 'Brake Systems', value: 3200, color: '#82ca9d' },
-    { name: 'Filters', value: 2800, color: '#ffc658' },
-    { name: 'Electronics', value: 2100, color: '#ff8042' },
-    { name: 'Body Parts', value: 1500, color: '#0088fe' }
+    { name: "Engine Parts", value: 35 },
+    { name: "Body Parts", value: 25 },
+    { name: "Electrical", value: 20 },
+    { name: "Fluids & Oils", value: 15 },
+    { name: "Other", value: 5 },
   ];
-
-  const handleUpdateStock = async (id: string, newQuantity: number) => {
+  
+  const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8'];
+  
+  useEffect(() => {
+    fetchInventoryData();
+  }, []);
+  
+  const fetchInventoryData = async () => {
     try {
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('inventory')
-        .update({ stock_quantity: newQuantity })
-        .eq('id', id);
-
+        .select('stock_quantity, price');
+        
       if (error) throw error;
       
-      setIsEditingInventory(false);
-      setEditedItem(null);
-      
-      toast({
-        title: "Stock updated",
-        description: "Inventory stock has been updated successfully",
-      });
+      const totalItems = data.reduce((sum, item) => sum + item.stock_quantity, 0);
+      setTotalInventory(totalItems);
     } catch (error) {
-      console.error("Error updating inventory:", error);
-      toast({
-        title: "Error updating stock",
-        description: "There was a problem updating the inventory",
-        variant: "destructive"
-      });
+      console.error('Error fetching inventory data:', error);
     }
   };
   
-  const handleResetInventory = async () => {
+  const handleReset = async () => {
     try {
-      setIsResetting(true);
-      
+      // Update all inventory items to have 0 stock
       const { error } = await supabase
         .from('inventory')
         .update({ stock_quantity: 0 })
-        .gt('id', '0'); // This ensures we update all records
-      
+        .gt('id', '0'); // This condition ensures all records are updated
+        
       if (error) throw error;
       
+      setTotalInventory(0);
       toast({
-        title: "Inventory reset",
-        description: "All inventory stock has been reset to zero",
+        title: "Inventory Reset",
+        description: "All inventory items have been reset to zero.",
       });
-      
-      setIsResetDialogOpen(false);
     } catch (error) {
-      console.error("Error resetting inventory:", error);
+      console.error('Error resetting inventory:', error);
       toast({
-        title: "Error resetting inventory",
-        description: "There was a problem resetting the inventory",
-        variant: "destructive"
+        variant: "destructive",
+        title: "Reset Failed",
+        description: "There was an error resetting the inventory.",
       });
-    } finally {
-      setIsResetting(false);
     }
   };
-
-  if (loading) {
-    return <div className="flex items-center justify-center h-screen">Loading...</div>;
-  }
-
-  const totalInventoryCount = inventory.reduce((sum, item) => sum + item.stock_quantity, 0);
-  const totalInventoryValue = inventory.reduce((sum, item) => sum + (item.price * item.stock_quantity), 0);
-  const lowStockItems = inventory.filter(item => item.stock_quantity < 10);
-
+  
   return (
-    <DashboardLayout>
-      <div className="flex flex-col gap-4">
-        <div className="flex justify-between items-center">
-          <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-          <div className="flex items-center gap-2">
-            <ThemeToggle />
-            <AlertDialog open={isResetDialogOpen} onOpenChange={setIsResetDialogOpen}>
-              <AlertDialogTrigger asChild>
-                <Button variant="outline" className="gap-2">
-                  <RotateCcw className="h-4 w-4" />
-                  Reset Inventory
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Reset Inventory</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    This action will set all inventory stock quantities to zero.
-                    This action cannot be undone.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction 
-                    onClick={handleResetInventory} 
-                    className="bg-destructive text-destructive-foreground"
-                    disabled={isResetting}
-                  >
-                    {isResetting ? 'Resetting...' : 'Reset'}
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
-          </div>
+    <div className="space-y-6">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Admin Dashboard</h1>
+          <p className="text-muted-foreground">
+            Overview of inventory, sales, and supplier performance
+          </p>
         </div>
-        
-        <p className="text-muted-foreground">
-          Welcome to your automotive management dashboard.
-        </p>
-        
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full md:w-auto mt-4 md:mt-0">
+          <TabsList>
+            <TabsTrigger value="overview">Overview</TabsTrigger>
+            <TabsTrigger value="sales">Sales</TabsTrigger>
+            <TabsTrigger value="inventory">Inventory</TabsTrigger>
+          </TabsList>
+        </Tabs>
+      </div>
+    
+      <TabsContent value="overview" className="m-0">
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">Total Inventory</CardTitle>
-              <div className="flex items-center">
-                <Package className="h-4 w-4 text-muted-foreground mr-2" />
-                <Button 
-                  variant="ghost" 
-                  size="icon" 
-                  className="h-5 w-5"
-                  onClick={() => {
-                    setIsEditingInventory(!isEditingInventory);
-                    setEditedItem(null);
-                  }}
-                >
-                  <Edit className="h-3 w-3" />
+              <CardTitle className="text-sm font-medium text-muted-foreground">Total Inventory</CardTitle>
+              <PackageOpen className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{totalInventory} items</div>
+              <div className="flex items-center justify-between mt-4">
+                <p className="text-xs text-muted-foreground">
+                  Across all categories
+                </p>
+                <Button variant="outline" size="sm" onClick={handleReset}>
+                  <RefreshCcw className="mr-2 h-3.5 w-3.5" />
+                  Reset
                 </Button>
               </div>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">Pending Orders</CardTitle>
+              <ShoppingBag className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{totalInventoryCount}</div>
-              <p className="text-xs text-muted-foreground">
-                Value: ₹{formatNumber(totalInventoryValue)}
+              <div className="text-2xl font-bold">{ordersPending}</div>
+              <p className="text-xs text-muted-foreground mt-4">
+                Requires approval
               </p>
             </CardContent>
           </Card>
           
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">Active Customers</CardTitle>
-              <Users className="h-4 w-4 text-muted-foreground" />
+              <CardTitle className="text-sm font-medium text-muted-foreground">Total Sales</CardTitle>
+              <TrendingUp className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">127</div>
-              <p className="text-xs text-muted-foreground">
-                +15.3% from last month
+              <div className="text-2xl font-bold">₹{totalSales.toLocaleString()}</div>
+              <p className="text-xs text-muted-foreground mt-4">
+                Last 30 days
               </p>
             </CardContent>
           </Card>
           
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">Monthly Sales</CardTitle>
-              <BarChart3 className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">₹4.3L</div>
-              <p className="text-xs text-muted-foreground">
-                +7.5% from last month
-              </p>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">Suppliers</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">Active Suppliers</CardTitle>
               <Truck className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">24</div>
-              <p className="text-xs text-muted-foreground">
-                +2 new this month
+              <div className="text-2xl font-bold">{totalSuppliers}</div>
+              <p className="text-xs text-muted-foreground mt-4">
+                All registered suppliers
               </p>
             </CardContent>
           </Card>
         </div>
         
-        {isEditingInventory && (
-          <Card className="col-span-full">
+        <div className="grid gap-4 md:grid-cols-2 mt-4">
+          <Card className="col-span-1">
             <CardHeader>
-              <CardTitle>Edit Inventory</CardTitle>
-              <CardDescription>
-                Update stock quantities for inventory items
-              </CardDescription>
+              <CardTitle>Sales by Category</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4 max-h-64 overflow-y-auto">
-                {inventory.map((item) => (
-                  <div key={item.id} className="flex items-center justify-between py-2 border-b">
-                    <div>
-                      <p className="font-medium">{item.name}</p>
-                      <p className="text-sm text-muted-foreground">Current stock: {item.stock_quantity}</p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <input 
-                        type="number" 
-                        className="w-20 p-1 border rounded"
-                        defaultValue={item.stock_quantity}
-                        min={0}
-                        onChange={(e) => {
-                          setEditedItem({...item, stock_quantity: parseInt(e.target.value, 10)});
-                        }}
-                      />
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        onClick={() => {
-                          if (editedItem && editedItem.id === item.id) {
-                            handleUpdateStock(item.id, editedItem.stock_quantity);
-                          }
-                        }}
+              <div className="h-80">
+                <ChartContainer config={{
+                  'Engine Parts': { color: COLORS[0] },
+                  'Body Parts': { color: COLORS[1] },
+                  'Electrical': { color: COLORS[2] },
+                  'Fluids & Oils': { color: COLORS[3] },
+                  'Other': { color: COLORS[4] },
+                }}>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={salesData}
+                        cx="50%"
+                        cy="50%"
+                        labelLine={false}
+                        outerRadius={100}
+                        fill="#8884d8"
+                        dataKey="value"
+                        label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
                       >
-                        Update
-                      </Button>
-                    </div>
-                  </div>
-                ))}
+                        {salesData.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                        ))}
+                      </Pie>
+                      <Legend />
+                      <ChartTooltip content={<ChartTooltipContent />} />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </ChartContainer>
               </div>
             </CardContent>
           </Card>
-        )}
-        
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          <Card>
-            <CardHeader>
-              <CardTitle>Inventory by Category</CardTitle>
-              <CardDescription>
-                Distribution of inventory items by category
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="h-[300px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={categoryData}
-                    cx="50%"
-                    cy="50%"
-                    labelLine={false}
-                    outerRadius={80}
-                    fill="#8884d8"
-                    dataKey="value"
-                    label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                  >
-                    {categoryData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Pie>
-                  <Tooltip formatter={(value: any) => [`${value} items`, 'Quantity']} />
-                  <Legend />
-                </PieChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
           
-          <Card>
-            <CardHeader>
-              <CardTitle>Stock Level Status</CardTitle>
-              <CardDescription>
-                Inventory stock level distribution
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="h-[300px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={stockLevelData}
-                    cx="50%"
-                    cy="50%"
-                    labelLine={false}
-                    outerRadius={80}
-                    fill="#8884d8"
-                    dataKey="value"
-                    label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                  >
-                    {stockLevelData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Pie>
-                  <Tooltip formatter={(value: any) => [`${value} items`, 'Count']} />
-                  <Legend />
-                </PieChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardHeader>
-              <CardTitle>Sales by Category</CardTitle>
-              <CardDescription>
-                Distribution of sales by product category
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="h-[300px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={salesData}
-                    cx="50%"
-                    cy="50%"
-                    labelLine={false}
-                    outerRadius={80}
-                    fill="#8884d8"
-                    dataKey="value"
-                    label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                  >
-                    {salesData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Pie>
-                  <Tooltip formatter={(value: any) => [`₹${formatNumber(Number(value))}`, 'Revenue']} />
-                  <Legend />
-                </PieChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
-
-          <Card className="col-span-2">
+          <Card className="col-span-1">
             <CardHeader>
               <CardTitle>Recent Activity</CardTitle>
-              <CardDescription>
-                Your recent actions and updates
-              </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                <div className="flex items-center">
-                  <div className="ml-4 space-y-1">
-                    <p className="text-sm font-medium leading-none">New inventory added</p>
-                    <p className="text-sm text-muted-foreground">
-                      10 new items added to inventory
-                    </p>
+                <div className="flex items-start gap-4">
+                  <CheckCircle className="h-5 w-5 text-green-500 mt-0.5" />
+                  <div>
+                    <p className="font-medium">Order #PO-2023-457 processed</p>
+                    <p className="text-sm text-muted-foreground">Tata Auto Parts | 10 minutes ago</p>
                   </div>
-                  <div className="ml-auto font-medium">Today</div>
                 </div>
-                <div className="flex items-center">
-                  <div className="ml-4 space-y-1">
-                    <p className="text-sm font-medium leading-none">Order completed</p>
-                    <p className="text-sm text-muted-foreground">
-                      Order #12345 has been completed
-                    </p>
+                
+                <div className="flex items-start gap-4">
+                  <AlertTriangle className="h-5 w-5 text-amber-500 mt-0.5" />
+                  <div>
+                    <p className="font-medium">Low stock alert: Brake Pads</p>
+                    <p className="text-sm text-muted-foreground">Only 5 units remaining | 2 hours ago</p>
                   </div>
-                  <div className="ml-auto font-medium">Yesterday</div>
                 </div>
-                <div className="flex items-center">
-                  <div className="ml-4 space-y-1">
-                    <p className="text-sm font-medium leading-none">New customer</p>
-                    <p className="text-sm text-muted-foreground">
-                      New customer Raj Automotive registered
-                    </p>
+                
+                <div className="flex items-start gap-4">
+                  <Users className="h-5 w-5 text-blue-500 mt-0.5" />
+                  <div>
+                    <p className="font-medium">New supplier registered</p>
+                    <p className="text-sm text-muted-foreground">Continental India | 5 hours ago</p>
                   </div>
-                  <div className="ml-auto font-medium">2 days ago</div>
+                </div>
+                
+                <div className="flex items-start gap-4">
+                  <ShoppingBag className="h-5 w-5 text-purple-500 mt-0.5" />
+                  <div>
+                    <p className="font-medium">New order received</p>
+                    <p className="text-sm text-muted-foreground">Order #SO-2023-672 | 1 day ago</p>
+                  </div>
                 </div>
               </div>
             </CardContent>
-          </Card>
-          
-          <Card className="border-red-200 dark:border-red-800">
-            <CardHeader className="bg-red-50 dark:bg-red-900/20 rounded-t-lg">
-              <div className="flex items-center gap-2">
-                <AlertTriangle className="h-5 w-5 text-red-500" />
-                <CardTitle>Low Stock Alert</CardTitle>
-              </div>
-              <CardDescription>
-                These items need immediate restocking
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="pt-4">
-              <div className="space-y-4 max-h-[250px] overflow-y-auto">
-                {lowStockItems.length > 0 ? (
-                  lowStockItems.map(item => (
-                    <div key={item.id} className="flex items-center gap-3 border-b pb-3">
-                      <div className="h-12 w-12 overflow-hidden rounded-md bg-muted flex-shrink-0">
-                        <img 
-                          src={item.image_url || `/placeholder.svg`} 
-                          alt={item.name}
-                          className="h-full w-full object-cover"
-                        />
-                      </div>
-                      <div className="flex-1">
-                        <p className="font-medium text-sm">{item.name}</p>
-                        <div className="flex items-center justify-between mt-1">
-                          <p className="text-xs text-muted-foreground">
-                            Category: {item.category}
-                          </p>
-                          <span className={`text-xs px-2 py-0.5 rounded-full ${
-                            item.stock_quantity === 0
-                              ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300'
-                              : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300'
-                          }`}>
-                            {item.stock_quantity === 0 ? 'Out of stock' : `Only ${item.stock_quantity} left`}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  ))
-                ) : (
-                  <div className="text-center py-6">
-                    <p className="text-sm text-muted-foreground">No low stock items</p>
-                  </div>
-                )}
-              </div>
-            </CardContent>
-            <CardFooter className="bg-red-50/50 dark:bg-red-900/10 rounded-b-lg">
-              <Button variant="outline" className="w-full" onClick={() => navigate('/dashboard/inventory')}>
-                View All Inventory
-              </Button>
-            </CardFooter>
           </Card>
         </div>
+      </TabsContent>
+      
+      <TabsContent value="sales" className="m-0">
+        <Card>
+          <CardHeader>
+            <CardTitle>Sales Analytics</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="h-[400px] flex items-center justify-center">
+              <p className="text-muted-foreground">Sales analytics dashboard content here</p>
+            </div>
+          </CardContent>
+        </Card>
+      </TabsContent>
+      
+      <TabsContent value="inventory" className="m-0">
+        <Card>
+          <CardHeader>
+            <CardTitle>Inventory Management</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="h-[400px] flex items-center justify-center">
+              <p className="text-muted-foreground">Inventory management dashboard content here</p>
+            </div>
+          </CardContent>
+        </Card>
+      </TabsContent>
+    </div>
+  );
+};
+
+// Manager Dashboard
+const ManagerDashboard = () => {
+  return (
+    <div className="space-y-6">
+      <h1 className="text-3xl font-bold tracking-tight">Manager Dashboard</h1>
+      <p className="text-muted-foreground">
+        Manage inventory, orders and team performance
+      </p>
+      
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium">Pending Approvals</CardTitle>
+            <AlertTriangle className="h-4 w-4 text-amber-500" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">12</div>
+            <p className="text-xs text-muted-foreground mt-4">
+              Purchase orders awaiting your approval
+            </p>
+            <Button className="w-full mt-4" variant="outline">View All</Button>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium">Team Performance</CardTitle>
+            <Users className="h-4 w-4 text-blue-500" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">87%</div>
+            <p className="text-xs text-muted-foreground mt-4">
+              Average team efficiency this month
+            </p>
+            <Button className="w-full mt-4" variant="outline">View Details</Button>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium">Upcoming Deliveries</CardTitle>
+            <Truck className="h-4 w-4 text-green-500" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">8</div>
+            <p className="text-xs text-muted-foreground mt-4">
+              Expected in the next 48 hours
+            </p>
+            <Button className="w-full mt-4" variant="outline">Track Deliveries</Button>
+          </CardContent>
+        </Card>
       </div>
+    </div>
+  );
+};
+
+// Supplier Dashboard
+const SupplierDashboard = () => {
+  return (
+    <div className="space-y-6">
+      <h1 className="text-3xl font-bold tracking-tight">Supplier Portal</h1>
+      <p className="text-muted-foreground">
+        Manage orders, deliveries and invoices
+      </p>
+      
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium">Active Orders</CardTitle>
+            <ShoppingBag className="h-4 w-4 text-purple-500" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">7</div>
+            <p className="text-xs text-muted-foreground mt-4">
+              Orders requiring fulfillment
+            </p>
+            <Button className="w-full mt-4" variant="outline">Manage Orders</Button>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium">Pending Invoices</CardTitle>
+            <FileText className="h-4 w-4 text-blue-500" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">4</div>
+            <p className="text-xs text-muted-foreground mt-4">
+              Awaiting payment
+            </p>
+            <Button className="w-full mt-4" variant="outline">View Invoices</Button>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium">Performance Rating</CardTitle>
+            <TrendingUp className="h-4 w-4 text-green-500" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">4.7/5.0</div>
+            <p className="text-xs text-muted-foreground mt-4">
+              Based on delivery time and quality
+            </p>
+            <Button className="w-full mt-4" variant="outline">View Feedback</Button>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+};
+
+// User Dashboard
+const UserDashboard = () => {
+  return (
+    <div className="space-y-6">
+      <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
+      <p className="text-muted-foreground">
+        Welcome to the automotive parts inventory system
+      </p>
+      
+      <div className="grid gap-4 md:grid-cols-2">
+        <Card>
+          <CardHeader>
+            <CardTitle>Quick Actions</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <Button className="w-full">Browse Inventory</Button>
+            <Button className="w-full" variant="outline">View Suppliers</Button>
+            <Button className="w-full" variant="outline">Generate Reports</Button>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader>
+            <CardTitle>Recent Updates</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="flex items-start gap-4">
+                <PackageOpen className="h-5 w-5 text-blue-500 mt-0.5" />
+                <div>
+                  <p className="font-medium">New inventory items added</p>
+                  <p className="text-sm text-muted-foreground">15 new parts | 2 days ago</p>
+                </div>
+              </div>
+              
+              <div className="flex items-start gap-4">
+                <Truck className="h-5 w-5 text-green-500 mt-0.5" />
+                <div>
+                  <p className="font-medium">New supplier onboarded</p>
+                  <p className="text-sm text-muted-foreground">TVS Auto Parts | 1 week ago</p>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+};
+
+// Main Dashboard component that renders different dashboards based on user role
+export default function Dashboard() {
+  const { profile, loading } = useAuth();
+  
+  if (loading) {
+    return (
+      <DashboardLayout>
+        <div className="flex items-center justify-center h-[80vh]">
+          <p>Loading dashboard...</p>
+        </div>
+      </DashboardLayout>
+    );
+  }
+  
+  const renderDashboardByRole = () => {
+    const role = profile?.role?.toLowerCase() || 'user';
+    
+    switch (role) {
+      case 'admin':
+        return <AdminDashboard />;
+      case 'manager':
+        return <ManagerDashboard />;
+      case 'supplier':
+        return <SupplierDashboard />;
+      default:
+        return <UserDashboard />;
+    }
+  };
+  
+  return (
+    <DashboardLayout>
+      {renderDashboardByRole()}
     </DashboardLayout>
   );
-}
-
-function useCategoryData(inventory: InventoryItem[]) {
-  const [data, setData] = useState<{ name: string; value: number; color: string }[]>([]);
-  
-  useEffect(() => {
-    const categoryMap = new Map<string, number>();
-    
-    inventory.forEach(item => {
-      const category = item.category || 'Uncategorized';
-      categoryMap.set(category, (categoryMap.get(category) || 0) + 1);
-    });
-    
-    const colors = ['#8884d8', '#82ca9d', '#ffc658', '#ff8042', '#0088fe', '#00C49F', '#FFBB28', '#FF8042'];
-    
-    const chartData = Array.from(categoryMap.entries()).map(([category, count], index) => ({
-      name: category,
-      value: count,
-      color: colors[index % colors.length]
-    }));
-    
-    setData(chartData);
-  }, [inventory]);
-  
-  return data;
-}
-
-function useStockLevelData(inventory: InventoryItem[]) {
-  const [data, setData] = useState<{ name: string; value: number; color: string }[]>([]);
-  
-  useEffect(() => {
-    const stockLevels = {
-      'Low Stock (0-5)': 0,
-      'Medium Stock (6-20)': 0,
-      'High Stock (21+)': 0
-    };
-    
-    inventory.forEach(item => {
-      if (item.stock_quantity <= 5) {
-        stockLevels['Low Stock (0-5)']++;
-      } else if (item.stock_quantity <= 20) {
-        stockLevels['Medium Stock (6-20)']++;
-      } else {
-        stockLevels['High Stock (21+)']++;
-      }
-    });
-    
-    const colors = ['#ff8042', '#ffc658', '#82ca9d'];
-    
-    const chartData = Object.entries(stockLevels).map(([level, count], index) => ({
-      name: level,
-      value: count,
-      color: colors[index]
-    }));
-    
-    setData(chartData);
-  }, [inventory]);
-  
-  return data;
-}
-
-function formatNumber(num: number) {
-  if (num >= 100000) {
-    return (num / 100000).toFixed(1) + 'L';
-  } else if (num >= 1000) {
-    return (num / 1000).toFixed(1) + 'K';
-  }
-  return num.toString();
 }
