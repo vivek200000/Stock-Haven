@@ -12,7 +12,6 @@ import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { DateRange } from "react-day-picker";
 
-// Sample data
 const lowStockData = [
   { id: "SKU001", name: "Brake Pads - Ceramic", category: "Brake Systems", quantity: 5, reorderLevel: 10, price: 450, supplier: "Supreme Auto Parts" },
   { id: "SKU012", name: "Engine Oil - Synthetic 5W30", category: "Fluids & Oils", quantity: 3, reorderLevel: 15, price: 550, supplier: "Royal Lubricants" },
@@ -58,18 +57,16 @@ export default function InventoryReportsPage() {
   const [activeTab, setActiveTab] = useState("low-stock");
   const [searchTerm, setSearchTerm] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("All");
-  const [dateRange, setDateRange] = useState<DateRange>({ 
+  const [dateRange, setDateRange] = useState<DateRange | undefined>({ 
     from: new Date(2025, 3, 1), 
     to: new Date(2025, 3, 30) 
   });
   
-  // Filtered data states
   const [filteredLowStock, setFilteredLowStock] = useState(lowStockData);
   const [filteredValuation, setFilteredValuation] = useState(valuationData);
   const [filteredMovement, setFilteredMovement] = useState(movementData);
   const [filteredExpiry, setFilteredExpiry] = useState(expiryData);
   
-  // Category options based on all data
   const allCategories = Array.from(
     new Set([
       ...lowStockData.map(item => item.category),
@@ -95,18 +92,13 @@ export default function InventoryReportsPage() {
   };
 
   const handleDateRangeChange = (range: DateRange | undefined) => {
-    if (range && range.from) {
-      const updatedRange = {
-        from: range.from,
-        to: range.to || range.from
-      };
-      setDateRange(updatedRange);
-      filterData(searchTerm, categoryFilter, updatedRange);
+    if (range) {
+      setDateRange(range);
+      filterData(searchTerm, categoryFilter, range);
     }
   };
 
   const applyFilters = (category: string, range: DateRange) => {
-    // Apply category filter
     let lowStockFiltered = category === "All" 
       ? lowStockData 
       : lowStockData.filter(item => item.category === category);
@@ -115,13 +107,11 @@ export default function InventoryReportsPage() {
       ? valuationData
       : valuationData.filter(item => item.category === category);
       
-    // Movement data also needs date filtering
     let movementFiltered = movementData.filter(item => {
       if (!range.from || !range.to) return true;
       return item.date >= range.from && item.date <= range.to;
     });
     
-    // For expiry, filter by category and include only items not expired
     let expiryFiltered = expiryData.filter(item => 
       (category === "All" || item.category === category)
     );
@@ -133,23 +123,19 @@ export default function InventoryReportsPage() {
   };
 
   const filterData = (term: string, category: string, range: DateRange) => {
-    // Apply search term filtering
     if (term) {
-      // Low stock filtering
       let lowStockFiltered = lowStockData.filter(item => 
         (item.name.toLowerCase().includes(term) || 
         item.id.toLowerCase().includes(term)) &&
         (category === "All" || item.category === category)
       );
       
-      // Valuation data filtering
       let valuationFiltered = valuationData.filter(item => 
         (item.name.toLowerCase().includes(term) || 
         item.id.toLowerCase().includes(term)) &&
         (category === "All" || item.category === category)
       );
       
-      // Movement data filtering with date range
       let movementFiltered = movementData.filter(item => {
         const matchesSearch = item.name.toLowerCase().includes(term) || 
                              item.itemId.toLowerCase().includes(term);
@@ -158,7 +144,6 @@ export default function InventoryReportsPage() {
         return matchesSearch && matchesDateRange;
       });
       
-      // Expiry data filtering
       let expiryFiltered = expiryData.filter(item => 
         (item.name.toLowerCase().includes(term) || 
         item.id.toLowerCase().includes(term)) &&
@@ -215,7 +200,6 @@ export default function InventoryReportsPage() {
             <TabsTrigger value="expiry" className="flex-1">Item Expiry</TabsTrigger>
           </TabsList>
 
-          {/* Common filter section for all tabs */}
           <Card className="mb-6">
             <CardContent className="pt-6">
               <div className="flex flex-col md:flex-row justify-between gap-4">
@@ -261,7 +245,6 @@ export default function InventoryReportsPage() {
             </CardContent>
           </Card>
 
-          {/* Low Stock Report Tab */}
           <TabsContent value="low-stock">
             <Card>
               <CardHeader>
@@ -336,7 +319,6 @@ export default function InventoryReportsPage() {
             </Card>
           </TabsContent>
 
-          {/* Stock Valuation Report Tab */}
           <TabsContent value="valuation">
             <Card>
               <CardHeader>
@@ -405,7 +387,6 @@ export default function InventoryReportsPage() {
             </Card>
           </TabsContent>
 
-          {/* Stock Movement Report Tab */}
           <TabsContent value="movement">
             <Card>
               <CardHeader>
@@ -483,7 +464,6 @@ export default function InventoryReportsPage() {
             </Card>
           </TabsContent>
 
-          {/* Item Expiry Report Tab */}
           <TabsContent value="expiry">
             <Card>
               <CardHeader>
