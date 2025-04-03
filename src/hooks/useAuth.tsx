@@ -4,7 +4,6 @@ import { toast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { User, Session } from "@supabase/supabase-js";
 import { Database } from "@/integrations/supabase/types";
-import { useTwoFactor } from "./useTwoFactor";
 
 type Profile = Database['public']['Tables']['profiles']['Row'];
 
@@ -16,11 +15,6 @@ interface AuthContextType {
   signUp: (name: string, email: string, password: string, role: string) => Promise<void>;
   signOut: () => Promise<void>;
   loading: boolean;
-  twoFactor: {
-    required: boolean;
-    method: 'email' | 'google' | null;
-    verify: (code: string) => Promise<boolean>;
-  };
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -30,30 +24,33 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
-  
-  const { 
-    twoFactorRequired, 
-    twoFactorMethod,
-    checkTwoFactorRequirement,
-    verifyGoogleAuthenticatorCode 
-  } = useTwoFactor();
 
   useEffect(() => {
+    // Set up auth state listener first
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
         
         if (session?.user) {
+          // Defer profile fetching with setTimeout to avoid Supabase deadlock
           setTimeout(async () => {
             await fetchUserProfile(session.user.id);
-            await checkTwoFactorRequirement(session.user.id);
             
-            await supabase.rpc('log_activity', {
-              user_id: session.user.id,
-              action: event === 'SIGNED_IN' ? 'login' : 'logout',
-              metadata: {}
-            });
+            // Log user activity
+            if (event === 'SIGNED_IN') {
+              await supabase.rpc('log_activity', {
+                user_id: session.user.id,
+                action: 'login',
+                metadata: {}
+              });
+            } else if (event === 'SIGNED_OUT') {
+              await supabase.rpc('log_activity', {
+                user_id: session.user.id,
+                action: 'logout',
+                metadata: {}
+              });
+            }
           }, 0);
         } else {
           setProfile(null);
@@ -61,6 +58,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
     );
 
+    // Check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
@@ -165,51 +163,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const verifyTwoFactorCode = async (code: string): Promise<boolean> => {
-    if (!user) return false;
-    
-    if (twoFactorMethod === 'google') {
-      try {
-        const { data, error } = await supabase
-          .from('user_mfa')
-          .select('google_auth_secret')
-          .eq('user_id', user.id)
-          .single();
-
-        if (error || !data) {
-          console.error('Error fetching Google Auth secret:', error);
-          return false;
-        }
-
-        return verifyGoogleAuthenticatorCode(data.google_auth_secret, code);
-      } catch (error) {
-        console.error('Error verifying Google Auth code:', error);
-        return false;
-      }
-    }
-
-    // For email OTP verification
-    // Implement email OTP verification logic here
-    return false;
-  };
-
   return (
-    <AuthContext.Provider 
-      value={{ 
-        user, 
-        profile, 
-        session, 
-        signIn, 
-        signUp, 
-        signOut, 
-        loading,
-        twoFactor: {
-          required: twoFactorRequired,
-          method: twoFactorMethod,
-          verify: verifyTwoFactorCode
-        }
-      }}
-    >
+    <AuthContext.Provider value={{ user, profile, session, signIn, signUp, signOut, loading }}>
       {children}
     </AuthContext.Provider>
   );

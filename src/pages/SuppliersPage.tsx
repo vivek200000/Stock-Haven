@@ -6,10 +6,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Search, Truck, Phone, Mail, Package, Map, ExternalLink, Calendar, CheckCircle, AlertCircle, Clock } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { AddSupplierDialog } from "@/components/suppliers/AddSupplierDialog";
 
 interface Supplier {
   id: string;
@@ -177,25 +175,6 @@ export default function SuppliersPage() {
       .toUpperCase();
   };
   
-  const handleSupplierAdded = () => {
-    const newSuppliers = generateSampleSuppliers();
-    const newSupplier: Supplier = {
-      id: `SUP-${1000 + newSuppliers.length}`,
-      name: "New Auto Parts Ltd.",
-      contact: {
-        phone: `+91 ${Math.floor(Math.random() * 9000000000) + 1000000000}`,
-        email: "contact@newautoparts.com",
-        address: "123 Industrial Area, Mumbai"
-      },
-      categories: ["Engine Parts", "Electrical", "Accessories"],
-      status: 'active',
-      deliveryStatus: 'pending',
-      lastDelivery: new Date()
-    };
-    
-    setSuppliers([newSupplier, ...newSuppliers]);
-  };
-  
   if (loading) {
     return <div className="flex items-center justify-center h-screen">Loading...</div>;
   }
@@ -205,7 +184,10 @@ export default function SuppliersPage() {
       <div className="flex flex-col gap-4">
         <div className="flex justify-between items-center">
           <h1 className="text-3xl font-bold tracking-tight">Suppliers</h1>
-          <AddSupplierDialog onSupplierAdded={handleSupplierAdded} />
+          <Button>
+            <Truck className="h-4 w-4 mr-2" />
+            Add Supplier
+          </Button>
         </div>
         
         <Card>
