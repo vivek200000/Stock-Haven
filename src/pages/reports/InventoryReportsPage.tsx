@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -248,6 +247,7 @@ export default function InventoryReportsPage() {
                   
                   {activeTab === "movement" && (
                     <DatePickerWithRange
+                      className="w-[300px]"
                       value={dateRange}
                       onChange={handleDateRangeChange}
                     />
