@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -92,13 +93,11 @@ export default function InventoryReportsPage() {
   };
 
   const handleDateRangeChange = (range: DateRange | undefined) => {
-    if (range) {
-      setDateRange(range);
-      filterData(searchTerm, categoryFilter, range);
-    }
+    setDateRange(range);
+    filterData(searchTerm, categoryFilter, range);
   };
 
-  const applyFilters = (category: string, range: DateRange) => {
+  const applyFilters = (category: string, range: DateRange | undefined) => {
     let lowStockFiltered = category === "All" 
       ? lowStockData 
       : lowStockData.filter(item => item.category === category);
@@ -107,10 +106,13 @@ export default function InventoryReportsPage() {
       ? valuationData
       : valuationData.filter(item => item.category === category);
       
-    let movementFiltered = movementData.filter(item => {
-      if (!range.from || !range.to) return true;
-      return item.date >= range.from && item.date <= range.to;
-    });
+    let movementFiltered = movementData;
+    
+    if (range && range.from && range.to) {
+      movementFiltered = movementData.filter(item => 
+        item.date >= range.from! && item.date <= range.to!
+      );
+    }
     
     let expiryFiltered = expiryData.filter(item => 
       (category === "All" || item.category === category)
@@ -122,7 +124,7 @@ export default function InventoryReportsPage() {
     setFilteredExpiry(expiryFiltered);
   };
 
-  const filterData = (term: string, category: string, range: DateRange) => {
+  const filterData = (term: string, category: string, range: DateRange | undefined) => {
     if (term) {
       let lowStockFiltered = lowStockData.filter(item => 
         (item.name.toLowerCase().includes(term) || 
@@ -139,8 +141,12 @@ export default function InventoryReportsPage() {
       let movementFiltered = movementData.filter(item => {
         const matchesSearch = item.name.toLowerCase().includes(term) || 
                              item.itemId.toLowerCase().includes(term);
-        const matchesDateRange = !range.from || !range.to || 
-                               (item.date >= range.from && item.date <= range.to);
+        
+        let matchesDateRange = true;
+        if (range && range.from && range.to) {
+          matchesDateRange = item.date >= range.from && item.date <= range.to;
+        }
+        
         return matchesSearch && matchesDateRange;
       });
       
@@ -231,7 +237,6 @@ export default function InventoryReportsPage() {
                   
                   {activeTab === "movement" && (
                     <DatePickerWithRange
-                      className="w-[300px]"
                       value={dateRange}
                       onChange={handleDateRangeChange}
                     />
