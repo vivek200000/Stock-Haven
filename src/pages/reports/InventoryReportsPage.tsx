@@ -11,6 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Calendar, Download, Filter, Search } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
+import { DateRange } from "react-day-picker";
 
 // Sample data
 const lowStockData = [
@@ -58,7 +59,10 @@ export default function InventoryReportsPage() {
   const [activeTab, setActiveTab] = useState("low-stock");
   const [searchTerm, setSearchTerm] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("All");
-  const [dateRange, setDateRange] = useState<{ from: Date; to: Date }>({ from: new Date(2025, 3, 1), to: new Date(2025, 3, 30) });
+  const [dateRange, setDateRange] = useState<DateRange>({ 
+    from: new Date(2025, 3, 1), 
+    to: new Date(2025, 3, 30) 
+  });
   
   // Filtered data states
   const [filteredLowStock, setFilteredLowStock] = useState(lowStockData);
@@ -91,16 +95,18 @@ export default function InventoryReportsPage() {
     filterData(searchTerm, category, dateRange);
   };
 
-  const handleDateRangeChange = (range: { from?: Date; to?: Date }) => {
-    const updatedRange = {
-      from: range.from || dateRange.from,
-      to: range.to || dateRange.to
-    };
-    setDateRange(updatedRange);
-    filterData(searchTerm, categoryFilter, updatedRange);
+  const handleDateRangeChange = (range: DateRange | undefined) => {
+    if (range && range.from) {
+      const updatedRange = {
+        from: range.from,
+        to: range.to || range.from
+      };
+      setDateRange(updatedRange);
+      filterData(searchTerm, categoryFilter, updatedRange);
+    }
   };
 
-  const applyFilters = (category: string, range: { from: Date; to: Date }) => {
+  const applyFilters = (category: string, range: DateRange) => {
     // Apply category filter
     let lowStockFiltered = category === "All" 
       ? lowStockData 
@@ -111,10 +117,10 @@ export default function InventoryReportsPage() {
       : valuationData.filter(item => item.category === category);
       
     // Movement data also needs date filtering
-    let movementFiltered = movementData.filter(item => 
-      item.date >= range.from && 
-      item.date <= range.to
-    );
+    let movementFiltered = movementData.filter(item => {
+      if (!range.from || !range.to) return true;
+      return item.date >= range.from && item.date <= range.to;
+    });
     
     // For expiry, filter by category and include only items not expired
     let expiryFiltered = expiryData.filter(item => 
@@ -127,7 +133,7 @@ export default function InventoryReportsPage() {
     setFilteredExpiry(expiryFiltered);
   };
 
-  const filterData = (term: string, category: string, range: { from: Date; to: Date }) => {
+  const filterData = (term: string, category: string, range: DateRange) => {
     // Apply search term filtering
     if (term) {
       // Low stock filtering
@@ -145,12 +151,13 @@ export default function InventoryReportsPage() {
       );
       
       // Movement data filtering with date range
-      let movementFiltered = movementData.filter(item => 
-        (item.name.toLowerCase().includes(term) || 
-        item.itemId.toLowerCase().includes(term)) &&
-        item.date >= range.from && 
-        item.date <= range.to
-      );
+      let movementFiltered = movementData.filter(item => {
+        const matchesSearch = item.name.toLowerCase().includes(term) || 
+                             item.itemId.toLowerCase().includes(term);
+        const matchesDateRange = !range.from || !range.to || 
+                               (item.date >= range.from && item.date <= range.to);
+        return matchesSearch && matchesDateRange;
+      });
       
       // Expiry data filtering
       let expiryFiltered = expiryData.filter(item => 
