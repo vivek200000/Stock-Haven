@@ -7,7 +7,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { Button } from "@/components/ui/button";
 import { Package, Users, BarChart3, Truck, Edit, AlertTriangle, RotateCcw } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { ChartContainer } from "@/components/ui/chart";
 import { Tooltip, PieChart, Pie, Cell, ResponsiveContainer, Legend } from "recharts";
 import { Database } from "@/integrations/supabase/types";
 import { useToast } from "@/hooks/use-toast";
@@ -26,6 +25,16 @@ import {
 
 type InventoryItem = Database['public']['Tables']['inventory']['Row'];
 
+// Sample low stock data
+const sampleLowStockData = [
+  { id: "SKU001", name: "Brake Pads - Ceramic", category: "Brake Systems", stock_quantity: 5, image_url: "/placeholder.svg" },
+  { id: "SKU008", name: "Engine Oil - Synthetic 5W30", category: "Fluids & Oils", stock_quantity: 3, image_url: "/placeholder.svg" },
+  { id: "SKU012", name: "Air Filters - Premium", category: "Filters", stock_quantity: 4, image_url: "/placeholder.svg" },
+  { id: "SKU017", name: "Spark Plugs - Iridium", category: "Engine Parts", stock_quantity: 2, image_url: "/placeholder.svg" },
+  { id: "SKU024", name: "Headlight Bulbs - LED", category: "Electrical", stock_quantity: 0, image_url: "/placeholder.svg" },
+  { id: "SKU032", name: "Transmission Fluid", category: "Fluids & Oils", stock_quantity: 8, image_url: "/placeholder.svg" }
+];
+
 export default function Dashboard() {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
@@ -34,6 +43,7 @@ export default function Dashboard() {
   const [isEditingInventory, setIsEditingInventory] = useState(false);
   const [editedItem, setEditedItem] = useState<InventoryItem | null>(null);
   const [isResetDialogOpen, setIsResetDialogOpen] = useState(false);
+  const [lowStockItems, setLowStockItems] = useState<any[]>(sampleLowStockData);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -53,6 +63,11 @@ export default function Dashboard() {
         }
 
         setInventory(data || []);
+        
+        // If we have real inventory data, filter for low stock items
+        if (data && data.length > 0) {
+          setLowStockItems(data.filter(item => item.stock_quantity < 10));
+        }
       } catch (error) {
         console.error("Error fetching inventory:", error);
       }
@@ -147,7 +162,6 @@ export default function Dashboard() {
 
   const totalInventoryCount = inventory.reduce((sum, item) => sum + item.stock_quantity, 0);
   const totalInventoryValue = inventory.reduce((sum, item) => sum + (item.price * item.stock_quantity), 0);
-  const lowStockItems = inventory.filter(item => item.stock_quantity < 10);
 
   return (
     <DashboardLayout>
@@ -305,8 +319,8 @@ export default function Dashboard() {
                 Distribution of inventory items by category
               </CardDescription>
             </CardHeader>
-            <CardContent className="h-[300px]">
-              <ResponsiveContainer width="100%" height="100%">
+            <CardContent className="h-[300px] flex justify-center items-center">
+              <ResponsiveContainer width="100%" height={280}>
                 <PieChart>
                   <Pie
                     data={categoryData}
@@ -323,7 +337,7 @@ export default function Dashboard() {
                     ))}
                   </Pie>
                   <Tooltip formatter={(value: any) => [`${value} items`, 'Quantity']} />
-                  <Legend />
+                  <Legend layout="horizontal" verticalAlign="bottom" align="center" />
                 </PieChart>
               </ResponsiveContainer>
             </CardContent>
@@ -336,8 +350,8 @@ export default function Dashboard() {
                 Inventory stock level distribution
               </CardDescription>
             </CardHeader>
-            <CardContent className="h-[300px]">
-              <ResponsiveContainer width="100%" height="100%">
+            <CardContent className="h-[300px] flex justify-center items-center">
+              <ResponsiveContainer width="100%" height={280}>
                 <PieChart>
                   <Pie
                     data={stockLevelData}
@@ -354,7 +368,7 @@ export default function Dashboard() {
                     ))}
                   </Pie>
                   <Tooltip formatter={(value: any) => [`${value} items`, 'Count']} />
-                  <Legend />
+                  <Legend layout="horizontal" verticalAlign="bottom" align="center" />
                 </PieChart>
               </ResponsiveContainer>
             </CardContent>
@@ -367,8 +381,8 @@ export default function Dashboard() {
                 Distribution of sales by product category
               </CardDescription>
             </CardHeader>
-            <CardContent className="h-[300px]">
-              <ResponsiveContainer width="100%" height="100%">
+            <CardContent className="h-[300px] flex justify-center items-center">
+              <ResponsiveContainer width="100%" height={280}>
                 <PieChart>
                   <Pie
                     data={salesData}
@@ -385,7 +399,7 @@ export default function Dashboard() {
                     ))}
                   </Pie>
                   <Tooltip formatter={(value: any) => [`₹${formatNumber(Number(value))}`, 'Revenue']} />
-                  <Legend />
+                  <Legend layout="horizontal" verticalAlign="bottom" align="center" />
                 </PieChart>
               </ResponsiveContainer>
             </CardContent>

@@ -1,860 +1,608 @@
 
-import React, { useState } from "react";
+import { useState } from "react";
 import { DashboardLayout } from "@/components/DashboardLayout";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-  CardFooter,
-} from "@/components/ui/card";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  ChevronDown,
-  ChevronUp,
-  Download,
-  Filter,
-  Plus,
-  Search,
-  Upload,
-} from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Calendar, ChevronDown, Filter, Plus, SearchIcon, Upload } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { useToast } from "@/hooks/use-toast";
+import { format } from "date-fns";
 
-// Sample data for expenses
+// Sample expense data
 const sampleExpenses = [
-  {
-    id: "EXP-001",
-    date: "2023-10-10",
-    vendor: "AutoParts Inc.",
-    category: "Inventory",
-    amount: 2850.00,
+  { 
+    id: "EXP-001", 
+    date: new Date(2025, 3, 1), 
+    vendor: "Supreme Auto Parts", 
+    category: "Auto Parts", 
+    amount: 15000, 
+    paymentMethod: "Bank Transfer",
     paymentStatus: "Paid",
+    notes: "Monthly inventory restocking",
+    receipt: "/placeholder.svg" 
+  },
+  { 
+    id: "EXP-002", 
+    date: new Date(2025, 3, 5), 
+    vendor: "BuildWell Construction", 
+    category: "Maintenance", 
+    amount: 8500, 
+    paymentMethod: "Check",
+    paymentStatus: "Paid",
+    notes: "Shop floor repairs",
+    receipt: "/placeholder.svg" 
+  },
+  { 
+    id: "EXP-003", 
+    date: new Date(2025, 3, 10), 
+    vendor: "Power Utilities Ltd", 
+    category: "Utilities", 
+    amount: 12000, 
+    paymentMethod: "Bank Transfer",
+    paymentStatus: "Pending",
+    notes: "Monthly electricity bill",
+    receipt: "/placeholder.svg" 
+  },
+  { 
+    id: "EXP-004", 
+    date: new Date(2025, 3, 15), 
+    vendor: "Automotive Logistics", 
+    category: "Shipping", 
+    amount: 9500, 
     paymentMethod: "Credit Card",
-    receiptUrl: "",
-    notes: "Quarterly stock replenishment"
-  },
-  {
-    id: "EXP-002",
-    date: "2023-10-15",
-    vendor: "City Electric",
-    category: "Utilities",
-    amount: 450.75,
     paymentStatus: "Paid",
+    notes: "Parts delivery charges",
+    receipt: "/placeholder.svg" 
+  },
+  { 
+    id: "EXP-005", 
+    date: new Date(2025, 3, 20), 
+    vendor: "GearTech Solutions", 
+    category: "Equipment", 
+    amount: 75000, 
     paymentMethod: "Bank Transfer",
-    receiptUrl: "",
-    notes: "Monthly electricity bill"
-  },
-  {
-    id: "EXP-003",
-    date: "2023-10-20",
-    vendor: "Premium Auto Components",
-    category: "Inventory",
-    amount: 1250.00,
     paymentStatus: "Pending",
-    paymentMethod: "Net 30",
-    receiptUrl: "",
-    notes: "Special order parts"
+    notes: "New diagnostic equipment",
+    receipt: "/placeholder.svg" 
   },
-  {
-    id: "EXP-004",
-    date: "2023-10-22",
-    vendor: "Office Supplies Co.",
-    category: "Office",
-    amount: 185.45,
-    paymentStatus: "Paid",
-    paymentMethod: "Credit Card",
-    receiptUrl: "",
-    notes: "Printer ink and paper"
-  },
-  {
-    id: "EXP-005",
-    date: "2023-10-25",
-    vendor: "Maintenance Services",
-    category: "Maintenance",
-    amount: 550.00,
-    paymentStatus: "Paid",
-    paymentMethod: "Cash",
-    receiptUrl: "",
-    notes: "Warehouse cleaning"
-  },
-  {
-    id: "EXP-006",
-    date: "2023-10-28",
-    vendor: "Logistics Partners",
-    category: "Shipping",
-    amount: 780.50,
-    paymentStatus: "Pending",
-    paymentMethod: "Net 15",
-    receiptUrl: "",
-    notes: "Outbound shipping costs"
-  },
-  {
-    id: "EXP-007",
-    date: "2023-11-01",
-    vendor: "City Water",
-    category: "Utilities",
-    amount: 125.00,
-    paymentStatus: "Paid",
-    paymentMethod: "Bank Transfer",
-    receiptUrl: "",
-    notes: "Monthly water bill"
-  },
-  {
-    id: "EXP-008",
-    date: "2023-11-03",
-    vendor: "Insurance Provider",
-    category: "Insurance",
-    amount: 425.00,
-    paymentStatus: "Paid",
-    paymentMethod: "Bank Transfer",
-    receiptUrl: "",
-    notes: "Monthly insurance premium"
-  },
-  {
-    id: "EXP-009",
-    date: "2023-11-05",
-    vendor: "Marketing Agency",
-    category: "Marketing",
-    amount: 1200.00,
-    paymentStatus: "Pending",
-    paymentMethod: "Net 30",
-    receiptUrl: "",
-    notes: "Q4 marketing campaign"
-  },
-  {
-    id: "EXP-010",
-    date: "2023-11-10",
-    vendor: "Elite Auto Parts",
-    category: "Inventory",
-    amount: 3500.00,
-    paymentStatus: "Pending",
-    paymentMethod: "Net 30",
-    receiptUrl: "",
-    notes: "Special order premium parts"
-  }
 ];
 
-// Categories of expenses
+// Available categories
 const expenseCategories = [
-  "Inventory",
-  "Utilities",
-  "Office",
+  "Auto Parts",
   "Maintenance",
+  "Utilities",
   "Shipping",
-  "Insurance",
+  "Equipment",
+  "Office Supplies",
   "Marketing",
-  "Travel",
-  "Other"
+  "Insurance",
+  "Taxes",
+  "Miscellaneous"
 ];
 
-// Payment method options
+// Payment methods
 const paymentMethods = [
-  "Credit Card",
-  "Bank Transfer",
   "Cash",
+  "Credit Card",
+  "Debit Card",
+  "Bank Transfer",
   "Check",
-  "Net 15",
-  "Net 30",
-  "Net 60"
+  "UPI",
+  "Digital Wallet"
 ];
-
-// Payment status options
-const paymentStatuses = [
-  "Paid",
-  "Pending",
-  "Overdue",
-  "Cancelled"
-];
-
-// Filter functions
-const filterByStatus = (expenses: any[], status: string) => {
-  if (status === "all") return expenses;
-  return expenses.filter(expense => expense.paymentStatus.toLowerCase() === status.toLowerCase());
-};
-
-const filterByCategory = (expenses: any[], category: string) => {
-  if (category === "all") return expenses;
-  return expenses.filter(expense => expense.category === category);
-};
-
-const filterByVendor = (expenses: any[], vendor: string) => {
-  if (vendor === "all") return expenses;
-  return expenses.filter(expense => expense.vendor === vendor);
-};
-
-const filterByDateRange = (expenses: any[], startDate: string, endDate: string) => {
-  if (!startDate && !endDate) return expenses;
-  
-  return expenses.filter(expense => {
-    const expenseDate = new Date(expense.date);
-    const start = startDate ? new Date(startDate) : new Date(0);
-    const end = endDate ? new Date(endDate) : new Date();
-    
-    return expenseDate >= start && expenseDate <= end;
-  });
-};
-
-const filterBySearch = (expenses: any[], search: string) => {
-  if (!search) return expenses;
-  const searchLower = search.toLowerCase();
-  
-  return expenses.filter(expense => 
-    expense.id.toLowerCase().includes(searchLower) ||
-    expense.vendor.toLowerCase().includes(searchLower) ||
-    expense.notes.toLowerCase().includes(searchLower)
-  );
-};
 
 export default function ExpensesPage() {
-  const { toast } = useToast();
   const [expenses, setExpenses] = useState(sampleExpenses);
-  const [showEntryForm, setShowEntryForm] = useState(false);
-  const [selectedExpense, setSelectedExpense] = useState<any | null>(null);
-  
-  // Form state
+  const [filteredExpenses, setFilteredExpenses] = useState(sampleExpenses);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterCategory, setFilterCategory] = useState("All");
+  const [filterStatus, setFilterStatus] = useState("All");
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [selectedExpense, setSelectedExpense] = useState<any>(null);
   const [newExpense, setNewExpense] = useState({
-    id: `EXP-${(Math.floor(Math.random() * 900) + 100).toString()}`,
-    date: new Date().toISOString().split('T')[0],
+    id: `EXP-00${expenses.length + 1}`,
+    date: new Date(),
     vendor: "",
     category: "",
-    amount: "",
+    amount: 0,
+    paymentMethod: "Cash",
     paymentStatus: "Pending",
-    paymentMethod: "",
-    receiptUrl: "",
-    notes: ""
+    notes: "",
+    receipt: ""
   });
   
-  // Filter state
-  const [statusFilter, setStatusFilter] = useState("all");
-  const [categoryFilter, setCategoryFilter] = useState("all");
-  const [vendorFilter, setVendorFilter] = useState("all");
-  const [startDateFilter, setStartDateFilter] = useState("");
-  const [endDateFilter, setEndDateFilter] = useState("");
-  const [searchQuery, setSearchQuery] = useState("");
-  
-  // Sort state
-  const [sortField, setSortField] = useState("date");
-  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
-  
-  // Get unique vendors for filter
-  const vendors = Array.from(new Set(sampleExpenses.map(expense => expense.vendor)));
-  
-  // Calculate total expenses and pending amount
-  const totalExpensesAmount = sampleExpenses.reduce((sum, expense) => sum + expense.amount, 0);
-  const pendingExpensesAmount = sampleExpenses
-    .filter(expense => expense.paymentStatus === "Pending")
-    .reduce((sum, expense) => sum + expense.amount, 0);
-  
-  // Handle form input changes
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setNewExpense(prev => ({ ...prev, [name]: value }));
+  const { toast } = useToast();
+
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const term = e.target.value.toLowerCase();
+    setSearchTerm(term);
+    applyFilters(term, filterCategory, filterStatus);
   };
-  
-  // Handle select changes
-  const handleSelectChange = (name: string, value: string) => {
-    setNewExpense(prev => ({ ...prev, [name]: value }));
+
+  const handleCategoryFilter = (category: string) => {
+    setFilterCategory(category);
+    applyFilters(searchTerm, category, filterStatus);
   };
-  
-  // Submit new expense
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+
+  const handleStatusFilter = (status: string) => {
+    setFilterStatus(status);
+    applyFilters(searchTerm, filterCategory, status);
+  };
+
+  const applyFilters = (search: string, category: string, status: string) => {
+    let result = expenses;
     
-    // Validate form
-    if (!newExpense.vendor || !newExpense.category || !newExpense.amount || !newExpense.paymentMethod) {
+    if (search) {
+      result = result.filter(expense => 
+        expense.id.toLowerCase().includes(search) || 
+        expense.vendor.toLowerCase().includes(search)
+      );
+    }
+    
+    if (category !== "All") {
+      result = result.filter(expense => expense.category === category);
+    }
+    
+    if (status !== "All") {
+      result = result.filter(expense => expense.paymentStatus === status);
+    }
+    
+    setFilteredExpenses(result);
+  };
+
+  const handleOpenNewExpense = () => {
+    setSelectedExpense(null);
+    setNewExpense({
+      id: `EXP-00${expenses.length + 1}`,
+      date: new Date(),
+      vendor: "",
+      category: "",
+      amount: 0,
+      paymentMethod: "Cash",
+      paymentStatus: "Pending",
+      notes: "",
+      receipt: ""
+    });
+    setIsDialogOpen(true);
+  };
+
+  const handleViewExpense = (expense: any) => {
+    setSelectedExpense(expense);
+    setIsDialogOpen(true);
+  };
+
+  const handleExpenseChange = (field: string, value: any) => {
+    setNewExpense({
+      ...newExpense,
+      [field]: value
+    });
+  };
+
+  const handleSaveExpense = () => {
+    if (!newExpense.vendor || !newExpense.category || newExpense.amount <= 0) {
       toast({
-        title: "Missing Information",
-        description: "Please fill all required fields",
+        title: "Error",
+        description: "Please fill in all required fields",
         variant: "destructive"
       });
       return;
     }
+
+    const updatedExpenses = [...expenses, newExpense];
+    setExpenses(updatedExpenses);
+    setFilteredExpenses(updatedExpenses);
+    setIsDialogOpen(false);
     
-    const formattedExpense = {
-      ...newExpense,
-      amount: parseFloat(newExpense.amount)
-    };
-    
-    if (selectedExpense) {
-      // Update existing expense
-      setExpenses(expenses.map(exp => 
-        exp.id === selectedExpense.id ? formattedExpense : exp
-      ));
-      
-      toast({
-        title: "Expense Updated",
-        description: `Expense ${formattedExpense.id} has been updated.`
-      });
-    } else {
-      // Add new expense
-      setExpenses([formattedExpense, ...expenses]);
-      
-      toast({
-        title: "Expense Added",
-        description: `Expense ${formattedExpense.id} has been created.`
-      });
-    }
-    
-    // Reset form and state
-    setNewExpense({
-      id: `EXP-${(Math.floor(Math.random() * 900) + 100).toString()}`,
-      date: new Date().toISOString().split('T')[0],
-      vendor: "",
-      category: "",
-      amount: "",
-      paymentStatus: "Pending",
-      paymentMethod: "",
-      receiptUrl: "",
-      notes: ""
+    toast({
+      title: "Success",
+      description: "Expense has been added successfully"
     });
-    setSelectedExpense(null);
-    setShowEntryForm(false);
   };
-  
-  // Edit expense
-  const handleEdit = (expense: any) => {
-    setSelectedExpense(expense);
-    setNewExpense({
-      ...expense,
-      amount: expense.amount.toString()
-    });
-    setShowEntryForm(true);
-  };
-  
-  // Apply filters
-  const applyFilters = () => {
-    let filteredExpenses = [...sampleExpenses];
-    
-    filteredExpenses = filterByStatus(filteredExpenses, statusFilter);
-    filteredExpenses = filterByCategory(filteredExpenses, categoryFilter);
-    filteredExpenses = filterByVendor(filteredExpenses, vendorFilter);
-    filteredExpenses = filterByDateRange(filteredExpenses, startDateFilter, endDateFilter);
-    filteredExpenses = filterBySearch(filteredExpenses, searchQuery);
-    
-    // Apply sorting
-    filteredExpenses.sort((a, b) => {
-      let valueA, valueB;
-      
-      if (sortField === "date") {
-        valueA = new Date(a.date).getTime();
-        valueB = new Date(b.date).getTime();
-      } else if (sortField === "amount") {
-        valueA = a.amount;
-        valueB = b.amount;
-      } else {
-        valueA = a[sortField];
-        valueB = b[sortField];
-      }
-      
-      if (sortDirection === "asc") {
-        return valueA > valueB ? 1 : -1;
-      } else {
-        return valueA < valueB ? 1 : -1;
-      }
-    });
-    
-    setExpenses(filteredExpenses);
-  };
-  
-  // Reset filters
-  const resetFilters = () => {
-    setStatusFilter("all");
-    setCategoryFilter("all");
-    setVendorFilter("all");
-    setStartDateFilter("");
-    setEndDateFilter("");
-    setSearchQuery("");
-    setExpenses(sampleExpenses);
-  };
-  
-  // Handle sort
-  const handleSort = (field: string) => {
-    if (sortField === field) {
-      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
-    } else {
-      setSortField(field);
-      setSortDirection("asc");
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      // In a real app, you'd upload this file to storage
+      // For now, we'll just pretend we have the URL
+      handleExpenseChange("receipt", URL.createObjectURL(e.target.files[0]));
     }
   };
-  
-  // Apply filters when they change
-  React.useEffect(() => {
-    applyFilters();
-  }, [
-    statusFilter, 
-    categoryFilter, 
-    vendorFilter, 
-    startDateFilter, 
-    endDateFilter, 
-    searchQuery,
-    sortField,
-    sortDirection
-  ]);
-  
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "Paid":
+        return "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300";
+      case "Pending":
+        return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300";
+      case "Overdue":
+        return "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300";
+      default:
+        return "bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300";
+    }
+  };
+
+  // Calculate summary statistics
+  const totalExpenses = filteredExpenses.reduce((sum, expense) => sum + expense.amount, 0);
+  const paidExpenses = filteredExpenses
+    .filter(expense => expense.paymentStatus === "Paid")
+    .reduce((sum, expense) => sum + expense.amount, 0);
+  const pendingExpenses = filteredExpenses
+    .filter(expense => expense.paymentStatus === "Pending")
+    .reduce((sum, expense) => sum + expense.amount, 0);
+
   return (
     <DashboardLayout>
-      <div className="container mx-auto py-6">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold">Expense Tracking</h1>
-          <Button onClick={() => setShowEntryForm(true)}>
-            <Plus className="mr-2 h-4 w-4" />
+      <div className="flex flex-col gap-4">
+        <div className="flex justify-between items-center">
+          <h1 className="text-3xl font-bold tracking-tight">Expense Management</h1>
+          <Button onClick={handleOpenNewExpense} className="gap-2">
+            <Plus className="h-4 w-4" />
             Add New Expense
           </Button>
         </div>
-        
-        {/* Summary Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+
+        <div className="grid gap-4 md:grid-cols-3">
           <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-xl">Total Expenses</CardTitle>
+            <CardHeader className="py-4">
+              <CardTitle className="text-sm font-medium">Total Expenses</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-3xl font-bold">${totalExpensesAmount.toFixed(2)}</p>
+              <div className="text-2xl font-bold">₹{totalExpenses.toLocaleString('en-IN')}</div>
+              <p className="text-xs text-muted-foreground">
+                Current month
+              </p>
             </CardContent>
           </Card>
           
           <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-xl">Pending Payments</CardTitle>
+            <CardHeader className="py-4">
+              <CardTitle className="text-sm font-medium">Paid</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-3xl font-bold">${pendingExpensesAmount.toFixed(2)}</p>
+              <div className="text-2xl font-bold text-green-600">₹{paidExpenses.toLocaleString('en-IN')}</div>
+              <p className="text-xs text-muted-foreground">
+                {((paidExpenses / totalExpenses) * 100).toFixed(1)}% of total
+              </p>
             </CardContent>
           </Card>
           
           <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-xl">This Month</CardTitle>
+            <CardHeader className="py-4">
+              <CardTitle className="text-sm font-medium">Pending</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-3xl font-bold">
-                $
-                {sampleExpenses
-                  .filter(exp => {
-                    const now = new Date();
-                    const expDate = new Date(exp.date);
-                    return (
-                      expDate.getMonth() === now.getMonth() &&
-                      expDate.getFullYear() === now.getFullYear()
-                    );
-                  })
-                  .reduce((sum, exp) => sum + exp.amount, 0)
-                  .toFixed(2)
-                }
+              <div className="text-2xl font-bold text-yellow-600">₹{pendingExpenses.toLocaleString('en-IN')}</div>
+              <p className="text-xs text-muted-foreground">
+                {((pendingExpenses / totalExpenses) * 100).toFixed(1)}% of total
               </p>
             </CardContent>
           </Card>
         </div>
-        
-        {/* Filters */}
-        <Card className="mb-6">
-          <CardHeader>
-            <CardTitle>Search and Filter</CardTitle>
-            <CardDescription>Find expenses quickly</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 gap-4">
-              <div className="relative">
-                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                <Input
-                  type="search"
-                  placeholder="Search by ID, vendor, or notes..."
-                  className="pl-8"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Filter by category" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Categories</SelectItem>
-                    {expenseCategories.map((category) => (
-                      <SelectItem key={category} value={category}>
-                        {category}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                
-                <Select value={statusFilter} onValueChange={setStatusFilter}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Filter by status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Statuses</SelectItem>
-                    {paymentStatuses.map((status) => (
-                      <SelectItem key={status} value={status}>
-                        {status}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                
-                <Select value={vendorFilter} onValueChange={setVendorFilter}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Filter by vendor" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Vendors</SelectItem>
-                    {vendors.map((vendor) => (
-                      <SelectItem key={vendor} value={vendor}>
-                        {vendor}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                
-                <Button variant="outline" onClick={resetFilters}>
-                  <Filter className="mr-2 h-4 w-4" />
-                  Reset Filters
-                </Button>
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="startDate">Start Date</Label>
-                  <Input
-                    id="startDate"
-                    type="date"
-                    value={startDateFilter}
-                    onChange={(e) => setStartDateFilter(e.target.value)}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="endDate">End Date</Label>
-                  <Input
-                    id="endDate"
-                    type="date"
-                    value={endDateFilter}
-                    onChange={(e) => setEndDateFilter(e.target.value)}
-                  />
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        
-        {/* Expenses Table */}
+
         <Card>
           <CardHeader>
             <CardTitle>Expenses</CardTitle>
             <CardDescription>
-              {expenses.length} {expenses.length === 1 ? "expense" : "expenses"} found
+              View and manage all your inventory-related expenses
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead 
-                    className="cursor-pointer"
-                    onClick={() => handleSort("id")}
-                  >
-                    Expense ID
-                    {sortField === "id" && (
-                      sortDirection === "asc" 
-                        ? <ChevronUp className="inline ml-1 h-4 w-4" />
-                        : <ChevronDown className="inline ml-1 h-4 w-4" />
-                    )}
-                  </TableHead>
-                  <TableHead 
-                    className="cursor-pointer"
-                    onClick={() => handleSort("date")}
-                  >
-                    Date
-                    {sortField === "date" && (
-                      sortDirection === "asc" 
-                        ? <ChevronUp className="inline ml-1 h-4 w-4" />
-                        : <ChevronDown className="inline ml-1 h-4 w-4" />
-                    )}
-                  </TableHead>
-                  <TableHead 
-                    className="cursor-pointer"
-                    onClick={() => handleSort("vendor")}
-                  >
-                    Vendor
-                    {sortField === "vendor" && (
-                      sortDirection === "asc" 
-                        ? <ChevronUp className="inline ml-1 h-4 w-4" />
-                        : <ChevronDown className="inline ml-1 h-4 w-4" />
-                    )}
-                  </TableHead>
-                  <TableHead 
-                    className="cursor-pointer"
-                    onClick={() => handleSort("category")}
-                  >
-                    Category
-                    {sortField === "category" && (
-                      sortDirection === "asc" 
-                        ? <ChevronUp className="inline ml-1 h-4 w-4" />
-                        : <ChevronDown className="inline ml-1 h-4 w-4" />
-                    )}
-                  </TableHead>
-                  <TableHead 
-                    className="cursor-pointer text-right"
-                    onClick={() => handleSort("amount")}
-                  >
-                    Amount
-                    {sortField === "amount" && (
-                      sortDirection === "asc" 
-                        ? <ChevronUp className="inline ml-1 h-4 w-4" />
-                        : <ChevronDown className="inline ml-1 h-4 w-4" />
-                    )}
-                  </TableHead>
-                  <TableHead 
-                    className="cursor-pointer"
-                    onClick={() => handleSort("paymentStatus")}
-                  >
-                    Status
-                    {sortField === "paymentStatus" && (
-                      sortDirection === "asc" 
-                        ? <ChevronUp className="inline ml-1 h-4 w-4" />
-                        : <ChevronDown className="inline ml-1 h-4 w-4" />
-                    )}
-                  </TableHead>
-                  <TableHead>Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {expenses.length === 0 ? (
+            <div className="flex flex-col md:flex-row justify-between gap-4 mb-6">
+              <div className="relative flex-1">
+                <SearchIcon className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search expenses..."
+                  className="pl-8"
+                  value={searchTerm}
+                  onChange={handleSearch}
+                />
+              </div>
+              <div className="flex gap-2 flex-wrap md:flex-nowrap">
+                <Select value={filterCategory} onValueChange={handleCategoryFilter}>
+                  <SelectTrigger className="w-[180px]">
+                    <div className="flex items-center gap-2">
+                      <Filter className="h-4 w-4" />
+                      <span>{filterCategory === "All" ? "All Categories" : filterCategory}</span>
+                    </div>
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="All">All Categories</SelectItem>
+                    {expenseCategories.map(category => (
+                      <SelectItem key={category} value={category}>{category}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                
+                <Select value={filterStatus} onValueChange={handleStatusFilter}>
+                  <SelectTrigger className="w-[180px]">
+                    <div className="flex items-center gap-2">
+                      <Filter className="h-4 w-4" />
+                      <span>{filterStatus === "All" ? "All Status" : filterStatus}</span>
+                    </div>
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="All">All Status</SelectItem>
+                    <SelectItem value="Paid">Paid</SelectItem>
+                    <SelectItem value="Pending">Pending</SelectItem>
+                    <SelectItem value="Overdue">Overdue</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="rounded-md border overflow-hidden">
+              <Table>
+                <TableHeader>
                   <TableRow>
-                    <TableCell colSpan={7} className="text-center py-6 text-muted-foreground">
-                      No expenses found with the current filters
-                    </TableCell>
+                    <TableHead>Expense ID</TableHead>
+                    <TableHead>Date</TableHead>
+                    <TableHead>Vendor</TableHead>
+                    <TableHead>Category</TableHead>
+                    <TableHead>Amount (₹)</TableHead>
+                    <TableHead>Payment Status</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
-                ) : (
-                  expenses.map((expense) => (
-                    <TableRow key={expense.id}>
-                      <TableCell className="font-medium">{expense.id}</TableCell>
-                      <TableCell>{expense.date}</TableCell>
-                      <TableCell>{expense.vendor}</TableCell>
-                      <TableCell>{expense.category}</TableCell>
-                      <TableCell className="text-right">${expense.amount.toFixed(2)}</TableCell>
-                      <TableCell>
-                        <Badge 
-                          variant={
-                            expense.paymentStatus === "Paid" 
-                              ? "default" 
-                              : expense.paymentStatus === "Pending" 
-                              ? "outline"
-                              : expense.paymentStatus === "Overdue" 
-                              ? "destructive"
-                              : "secondary"
-                          }
-                        >
-                          {expense.paymentStatus}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleEdit(expense)}
-                        >
-                          View/Edit
-                        </Button>
+                </TableHeader>
+                <TableBody>
+                  {filteredExpenses.length > 0 ? (
+                    filteredExpenses.map((expense) => (
+                      <TableRow key={expense.id}>
+                        <TableCell className="font-medium">{expense.id}</TableCell>
+                        <TableCell>{format(expense.date, 'dd/MM/yyyy')}</TableCell>
+                        <TableCell>{expense.vendor}</TableCell>
+                        <TableCell>{expense.category}</TableCell>
+                        <TableCell>₹{expense.amount.toLocaleString('en-IN')}</TableCell>
+                        <TableCell>
+                          <Badge className={getStatusColor(expense.paymentStatus)}>
+                            {expense.paymentStatus}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleViewExpense(expense)}
+                          >
+                            View
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={7} className="text-center py-6 text-muted-foreground">
+                        No expenses found
                       </TableCell>
                     </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
+                  )}
+                </TableBody>
+              </Table>
+            </div>
           </CardContent>
         </Card>
-        
-        {/* Expense Entry Form Dialog */}
-        <Dialog open={showEntryForm} onOpenChange={setShowEntryForm}>
-          <DialogContent className="sm:max-w-[600px]">
+
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <DialogContent className="max-w-3xl">
             <DialogHeader>
               <DialogTitle>
-                {selectedExpense ? "Edit Expense" : "Add New Expense"}
+                {selectedExpense ? `Expense Details - ${selectedExpense.id}` : "Add New Expense"}
               </DialogTitle>
               <DialogDescription>
                 {selectedExpense 
-                  ? "Update the expense details below"
-                  : "Enter the expense details below"}
+                  ? "View expense details" 
+                  : "Enter the details to create a new expense record"}
               </DialogDescription>
             </DialogHeader>
-            
-            <form onSubmit={handleSubmit}>
-              <div className="grid gap-4 py-4">
+
+            {selectedExpense ? (
+              <div className="space-y-6">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-sm font-medium">Expense ID</p>
+                    <p>{selectedExpense.id}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium">Date</p>
+                    <p>{format(selectedExpense.date, 'dd/MM/yyyy')}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium">Vendor</p>
+                    <p>{selectedExpense.vendor}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium">Category</p>
+                    <p>{selectedExpense.category}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium">Amount</p>
+                    <p>₹{selectedExpense.amount.toLocaleString('en-IN')}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium">Payment Method</p>
+                    <p>{selectedExpense.paymentMethod}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium">Payment Status</p>
+                    <Badge className={getStatusColor(selectedExpense.paymentStatus)}>
+                      {selectedExpense.paymentStatus}
+                    </Badge>
+                  </div>
+                </div>
+                
+                {selectedExpense.notes && (
+                  <div>
+                    <p className="text-sm font-medium">Notes</p>
+                    <p className="text-sm">{selectedExpense.notes}</p>
+                  </div>
+                )}
+                
+                {selectedExpense.receipt && (
+                  <div>
+                    <p className="text-sm font-medium">Receipt</p>
+                    <div className="mt-2 border rounded-md overflow-hidden">
+                      <img 
+                        src={selectedExpense.receipt} 
+                        alt="Receipt" 
+                        className="max-h-40 object-contain mx-auto"
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="id">Expense ID</Label>
+                    <Label htmlFor="expense-id">Expense ID</Label>
                     <Input
-                      id="id"
-                      name="id"
+                      id="expense-id"
                       value={newExpense.id}
-                      onChange={handleInputChange}
-                      disabled
+                      readOnly
+                      className="bg-muted"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="date">Date</Label>
-                    <Input
-                      id="date"
-                      name="date"
-                      type="date"
-                      value={newExpense.date}
-                      onChange={handleInputChange}
-                    />
+                    <Label htmlFor="expense-date">Date</Label>
+                    <div className="relative">
+                      <Calendar className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        id="expense-date"
+                        type="date"
+                        className="pl-8"
+                        value={format(newExpense.date, 'yyyy-MM-dd')}
+                        onChange={(e) => handleExpenseChange("date", new Date(e.target.value))}
+                      />
+                    </div>
                   </div>
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="vendor">Vendor Name</Label>
-                  <Input
-                    id="vendor"
-                    name="vendor"
-                    value={newExpense.vendor}
-                    onChange={handleInputChange}
-                    placeholder="Enter vendor name"
-                  />
                 </div>
                 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="category">Expense Type</Label>
-                    <Select
+                    <Label htmlFor="vendor-name">Vendor Name</Label>
+                    <Input
+                      id="vendor-name"
+                      placeholder="Enter vendor name"
+                      value={newExpense.vendor}
+                      onChange={(e) => handleExpenseChange("vendor", e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="expense-category">Category</Label>
+                    <Select 
                       value={newExpense.category}
-                      onValueChange={(value) => handleSelectChange("category", value)}
+                      onValueChange={(value) => handleExpenseChange("category", value)}
                     >
-                      <SelectTrigger>
+                      <SelectTrigger id="expense-category">
                         <SelectValue placeholder="Select category" />
                       </SelectTrigger>
                       <SelectContent>
-                        {expenseCategories.map((category) => (
-                          <SelectItem key={category} value={category}>
-                            {category}
-                          </SelectItem>
+                        {expenseCategories.map(category => (
+                          <SelectItem key={category} value={category}>{category}</SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="amount">Amount</Label>
-                    <Input
-                      id="amount"
-                      name="amount"
-                      type="number"
-                      step="0.01"
-                      value={newExpense.amount}
-                      onChange={handleInputChange}
-                      placeholder="0.00"
-                    />
                   </div>
                 </div>
                 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="paymentMethod">Payment Method</Label>
-                    <Select
+                    <Label htmlFor="expense-amount">Amount (₹)</Label>
+                    <Input
+                      id="expense-amount"
+                      type="number"
+                      placeholder="0.00"
+                      value={newExpense.amount || ""}
+                      onChange={(e) => handleExpenseChange("amount", parseFloat(e.target.value) || 0)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="payment-method">Payment Method</Label>
+                    <Select 
                       value={newExpense.paymentMethod}
-                      onValueChange={(value) => handleSelectChange("paymentMethod", value)}
+                      onValueChange={(value) => handleExpenseChange("paymentMethod", value)}
                     >
-                      <SelectTrigger>
+                      <SelectTrigger id="payment-method">
                         <SelectValue placeholder="Select payment method" />
                       </SelectTrigger>
                       <SelectContent>
-                        {paymentMethods.map((method) => (
-                          <SelectItem key={method} value={method}>
-                            {method}
-                          </SelectItem>
+                        {paymentMethods.map(method => (
+                          <SelectItem key={method} value={method}>{method}</SelectItem>
                         ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="payment-status">Payment Status</Label>
+                    <Select 
+                      value={newExpense.paymentStatus}
+                      onValueChange={(value) => handleExpenseChange("paymentStatus", value)}
+                    >
+                      <SelectTrigger id="payment-status">
+                        <SelectValue placeholder="Select status" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Paid">Paid</SelectItem>
+                        <SelectItem value="Pending">Pending</SelectItem>
+                        <SelectItem value="Overdue">Overdue</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="paymentStatus">Payment Status</Label>
-                    <Select
-                      value={newExpense.paymentStatus}
-                      onValueChange={(value) => handleSelectChange("paymentStatus", value)}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select payment status" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {paymentStatuses.map((status) => (
-                          <SelectItem key={status} value={status}>
-                            {status}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <Label htmlFor="receipt-upload">Receipt Upload</Label>
+                    <div className="relative">
+                      <Input
+                        id="receipt-upload"
+                        type="file"
+                        className="hidden"
+                        onChange={handleFileUpload}
+                      />
+                      <Button
+                        variant="outline"
+                        className="w-full"
+                        onClick={() => document.getElementById("receipt-upload")?.click()}
+                      >
+                        <Upload className="h-4 w-4 mr-2" />
+                        Upload Receipt
+                      </Button>
+                      {newExpense.receipt && (
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Receipt uploaded
+                        </p>
+                      )}
+                    </div>
                   </div>
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="receipt">Receipt Upload</Label>
-                  <div className="flex items-center gap-4">
-                    <Input
-                      id="receipt"
-                      type="file"
-                      className="hidden"
-                    />
-                    <Button type="button" variant="outline" className="w-full">
-                      <Upload className="mr-2 h-4 w-4" />
-                      Upload Receipt
-                    </Button>
-                  </div>
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="notes">Notes</Label>
+                  <Label htmlFor="expense-notes">Notes</Label>
                   <Input
-                    id="notes"
-                    name="notes"
+                    id="expense-notes"
+                    placeholder="Add any additional notes here"
                     value={newExpense.notes}
-                    onChange={handleInputChange}
-                    placeholder="Additional notes (optional)"
+                    onChange={(e) => handleExpenseChange("notes", e.target.value)}
                   />
                 </div>
               </div>
-              
-              <DialogFooter>
-                <Button type="button" variant="outline" onClick={() => {
-                  setShowEntryForm(false);
-                  setSelectedExpense(null);
-                }}>
-                  Cancel
+            )}
+
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
+                {selectedExpense ? "Close" : "Cancel"}
+              </Button>
+              {!selectedExpense && (
+                <Button onClick={handleSaveExpense}>
+                  Add Expense
                 </Button>
-                <Button type="submit">
-                  {selectedExpense ? "Update Expense" : "Add Expense"}
-                </Button>
-              </DialogFooter>
-            </form>
+              )}
+            </DialogFooter>
           </DialogContent>
         </Dialog>
       </div>
