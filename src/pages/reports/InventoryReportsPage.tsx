@@ -58,7 +58,7 @@ export default function InventoryReportsPage() {
   const [activeTab, setActiveTab] = useState("low-stock");
   const [searchTerm, setSearchTerm] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("All");
-  const [dateRange, setDateRange] = useState({ from: new Date(2025, 3, 1), to: new Date(2025, 3, 30) });
+  const [dateRange, setDateRange] = useState<{ from: Date; to: Date }>({ from: new Date(2025, 3, 1), to: new Date(2025, 3, 30) });
   
   // Filtered data states
   const [filteredLowStock, setFilteredLowStock] = useState(lowStockData);
@@ -240,15 +240,10 @@ export default function InventoryReportsPage() {
                   </Select>
                   
                   {activeTab === "movement" && (
-                    <div className="border rounded-md p-1 flex gap-2 items-center">
-                      <Calendar className="h-4 w-4 ml-2 text-muted-foreground" />
-                      <div className="flex flex-col">
-                        <div className="text-xs text-muted-foreground">Date Range</div>
-                        <div className="text-sm">
-                          {format(dateRange.from, 'dd/MM/yy')} - {format(dateRange.to, 'dd/MM/yy')}
-                        </div>
-                      </div>
-                    </div>
+                    <DatePickerWithRange
+                      value={dateRange}
+                      onChange={handleDateRangeChange}
+                    />
                   )}
                   
                   <Button variant="outline">
