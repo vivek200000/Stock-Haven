@@ -33,6 +33,36 @@ export type Database = {
         }
         Relationships: []
       }
+      email_otp_codes: {
+        Row: {
+          code: string
+          created_at: string
+          email: string
+          expires_at: string
+          id: string
+          used: boolean
+          user_id: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          email: string
+          expires_at: string
+          id?: string
+          used?: boolean
+          user_id: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          email?: string
+          expires_at?: string
+          id?: string
+          used?: boolean
+          user_id?: string
+        }
+        Relationships: []
+      }
       inventory: {
         Row: {
           category: string | null
@@ -96,11 +126,45 @@ export type Database = {
         }
         Relationships: []
       }
+      user_mfa: {
+        Row: {
+          created_at: string
+          email_2fa_enabled: boolean
+          google_auth_enabled: boolean
+          google_auth_secret: string | null
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          email_2fa_enabled?: boolean
+          google_auth_enabled?: boolean
+          google_auth_secret?: string | null
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          email_2fa_enabled?: boolean
+          google_auth_enabled?: boolean
+          google_auth_secret?: string | null
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      cleanup_expired_otp_codes: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       log_activity: {
         Args: {
           user_id: string
