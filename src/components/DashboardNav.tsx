@@ -1,4 +1,3 @@
-
 import { 
   SidebarMenu, 
   SidebarMenuItem, 
@@ -21,8 +20,8 @@ import {
   Users,
   CreditCard,
   Settings,
-  FileInvoice,
   DollarSign,
+  Receipt,
   ReceiptText
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";

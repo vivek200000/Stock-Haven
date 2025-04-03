@@ -1,7 +1,7 @@
 
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { FileInvoice } from "lucide-react";
+import { Receipt } from "lucide-react";
 import { useState } from "react";
 
 export default function Invoices() {
@@ -42,7 +42,7 @@ export default function Invoices() {
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="text-xl">
               <div className="flex items-center">
-                <FileInvoice className="mr-2 h-5 w-5" />
+                <Receipt className="mr-2 h-5 w-5" />
                 Invoices
               </div>
             </CardTitle>
