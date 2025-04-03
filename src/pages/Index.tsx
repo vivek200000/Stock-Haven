@@ -4,13 +4,17 @@ import { Button } from "@/components/ui/button";
 import Nav from "@/components/Nav";
 import { useAuth } from "@/hooks/useAuth";
 import { Car, ChevronRight, Shield, Users } from "lucide-react";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 export default function Index() {
   const { user } = useAuth();
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Nav />
+      <div className="container flex justify-between items-center py-4">
+        <Nav />
+        <ThemeToggle />
+      </div>
       
       <main className="flex-grow">
         {/* Hero Section */}
