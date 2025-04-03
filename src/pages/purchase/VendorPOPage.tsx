@@ -51,13 +51,13 @@ const vendors = [
 
 // Sample data for items
 const inventoryItems = [
-  { id: "1", name: "Brake Pads", price: 45.99 },
-  { id: "2", name: "Oil Filters", price: 12.50 },
-  { id: "3", name: "Spark Plugs", price: 8.99 },
-  { id: "4", name: "Transmission Fluid", price: 22.75 },
-  { id: "5", name: "Air Filters", price: 15.99 },
-  { id: "6", name: "Battery", price: 120.00 },
-  { id: "7", name: "Headlight Bulbs", price: 18.50 },
+  { id: "1", name: "Brake Pads", price: 1299.99 },
+  { id: "2", name: "Oil Filters", price: 499.50 },
+  { id: "3", name: "Spark Plugs", price: 199.99 },
+  { id: "4", name: "Transmission Fluid", price: 799.75 },
+  { id: "5", name: "Air Filters", price: 599.99 },
+  { id: "6", name: "Battery", price: 4500.00 },
+  { id: "7", name: "Headlight Bulbs", price: 799.50 },
 ];
 
 // Payment terms options
@@ -117,19 +117,19 @@ const existingPOs = [
         itemId: "1",
         itemName: "Brake Pads",
         quantity: 50,
-        unitPrice: 45.99,
-        total: 2299.50
+        unitPrice: 1299.99,
+        total: 64999.50
       },
       {
         id: "2",
         itemId: "3",
         itemName: "Spark Plugs",
         quantity: 100,
-        unitPrice: 8.99,
-        total: 899.00
+        unitPrice: 199.99,
+        total: 19999.00
       }
     ],
-    totalAmount: 3198.50,
+    totalAmount: 84998.50,
     paymentTerms: "Net 30",
     deliveryDate: "2023-06-15",
     notes: "Urgent order for quarterly stock replenishment",
@@ -146,14 +146,64 @@ const existingPOs = [
         itemId: "4",
         itemName: "Transmission Fluid",
         quantity: 30,
-        unitPrice: 22.75,
-        total: 682.50
+        unitPrice: 799.75,
+        total: 23992.50
       }
     ],
-    totalAmount: 682.50,
+    totalAmount: 23992.50,
     paymentTerms: "Net 60",
     deliveryDate: "2023-07-01",
     notes: "",
+    status: "Pending"
+  },
+  {
+    id: "PO-2023-003",
+    vendorId: "3",
+    vendorName: "Premium Auto Components",
+    poNumber: "PO-2023-003",
+    items: [
+      {
+        id: "1",
+        itemId: "6",
+        itemName: "Battery",
+        quantity: 15,
+        unitPrice: 4500.00,
+        total: 67500.00
+      },
+      {
+        id: "2",
+        itemId: "7",
+        itemName: "Headlight Bulbs",
+        quantity: 40,
+        unitPrice: 799.50,
+        total: 31980.00
+      }
+    ],
+    totalAmount: 99480.00,
+    paymentTerms: "50% Upfront",
+    deliveryDate: "2023-08-15",
+    notes: "High priority order for premium vehicles",
+    status: "Approved"
+  },
+  {
+    id: "PO-2023-004",
+    vendorId: "5",
+    vendorName: "Precision Engineering Co.",
+    poNumber: "PO-2023-004",
+    items: [
+      {
+        id: "1",
+        itemId: "5",
+        itemName: "Air Filters",
+        quantity: 75,
+        unitPrice: 599.99,
+        total: 44999.25
+      }
+    ],
+    totalAmount: 44999.25,
+    paymentTerms: "Net 30",
+    deliveryDate: "2023-09-01",
+    notes: "Regular quarterly restocking order",
     status: "Pending"
   }
 ];
@@ -281,6 +331,15 @@ export default function VendorPOPage() {
     setViewMode("form");
   };
 
+  // Format price in INR currency format
+  const formatPrice = (price: number) => {
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+      maximumFractionDigits: 0
+    }).format(price);
+  };
+
   return (
     <DashboardLayout>
       <div className="container mx-auto py-6">
@@ -321,13 +380,15 @@ export default function VendorPOPage() {
                     <TableRow key={po.id}>
                       <TableCell className="font-medium">{po.poNumber}</TableCell>
                       <TableCell>{po.vendorName}</TableCell>
-                      <TableCell>${po.totalAmount.toFixed(2)}</TableCell>
+                      <TableCell>{formatPrice(po.totalAmount)}</TableCell>
                       <TableCell>{po.paymentTerms}</TableCell>
                       <TableCell>{po.deliveryDate}</TableCell>
                       <TableCell>
                         <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
                           po.status === "Delivered" 
                             ? "bg-green-100 text-green-800"
+                            : po.status === "Approved"
+                            ? "bg-blue-100 text-blue-800"
                             : "bg-yellow-100 text-yellow-800"
                         }`}>
                           {po.status}
@@ -465,7 +526,7 @@ export default function VendorPOPage() {
                             <SelectContent>
                               {inventoryItems.map((item) => (
                                 <SelectItem key={item.id} value={item.id}>
-                                  {item.name} (${item.price.toFixed(2)})
+                                  {item.name} ({formatPrice(item.price)})
                                 </SelectItem>
                               ))}
                             </SelectContent>
@@ -503,8 +564,8 @@ export default function VendorPOPage() {
                           <TableRow key={item.id}>
                             <TableCell>{item.itemName}</TableCell>
                             <TableCell className="text-right">{item.quantity}</TableCell>
-                            <TableCell className="text-right">${item.unitPrice.toFixed(2)}</TableCell>
-                            <TableCell className="text-right">${item.total.toFixed(2)}</TableCell>
+                            <TableCell className="text-right">{formatPrice(item.unitPrice)}</TableCell>
+                            <TableCell className="text-right">{formatPrice(item.total)}</TableCell>
                             {!selectedPO && (
                               <TableCell>
                                 <Button
@@ -524,7 +585,7 @@ export default function VendorPOPage() {
                             Total:
                           </TableCell>
                           <TableCell className="text-right font-bold">
-                            ${calculateTotal()}
+                            {formatPrice(parseFloat(calculateTotal()))}
                           </TableCell>
                           {!selectedPO && <TableCell></TableCell>}
                         </TableRow>

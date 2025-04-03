@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
@@ -216,6 +215,7 @@ export default function InventoryPage() {
     return <div className="flex items-center justify-center h-screen">Loading...</div>;
   }
 
+  // Modified formatPrice function for INR currency
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('en-IN', {
       style: 'currency',

@@ -13,12 +13,12 @@ interface ReportSummaryProps {
 
 export function ReportSummary({ items }: ReportSummaryProps) {
   return (
-    <div className="mt-4 p-4 bg-muted rounded-md">
-      <div className="flex flex-col md:flex-row justify-between gap-4">
+    <div className="mt-4 p-6 bg-muted rounded-md shadow-sm">
+      <div className="flex flex-col md:flex-row justify-between gap-6">
         {items.map((item, index) => (
-          <div key={index}>
-            <p className="text-sm font-medium">{item.label}</p>
-            <p className={`text-2xl font-bold ${item.colorClass || ''}`}>{item.value}</p>
+          <div key={index} className="flex-1 text-center md:text-left">
+            <p className="text-sm font-medium text-muted-foreground">{item.label}</p>
+            <p className={`text-2xl font-bold mt-1 ${item.colorClass || ''}`}>{item.value}</p>
           </div>
         ))}
       </div>

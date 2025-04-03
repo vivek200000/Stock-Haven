@@ -6,7 +6,7 @@ import { DashboardLayout } from "@/components/DashboardLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Search, Truck, Phone, Mail, Package, Map, ExternalLink, Calendar, CheckCircle, AlertCircle, Clock } from "lucide-react";
+import { Search, Truck, Phone, Mail, Package, Map, Calendar, CheckCircle, AlertCircle, Clock } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
@@ -285,12 +285,6 @@ export default function SuppliersPage() {
                       </div>
                     </div>
                   </CardContent>
-                  <CardFooter className="pt-0">
-                    <Button variant="outline" size="sm" className="ml-auto">
-                      <ExternalLink className="h-4 w-4 mr-2" />
-                      View Details
-                    </Button>
-                  </CardFooter>
                 </Card>
               ))}
               

@@ -16,6 +16,7 @@ export function useFilteredReportData<T>(
   });
   const [filteredData, setFilteredData] = useState<T[]>(initialData);
 
+  // Automatically apply filters when any filter value changes
   useEffect(() => {
     setFilteredData(filterFunction(initialData, searchTerm, categoryFilter, dateRange));
   }, [initialData, searchTerm, categoryFilter, dateRange, filterFunction]);

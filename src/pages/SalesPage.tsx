@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
@@ -145,6 +144,7 @@ export default function SalesPage() {
   const totalItems = filteredSales.reduce((sum, sale) => sum + sale.quantity, 0);
   const averageOrderValue = filteredSales.length ? totalRevenue / filteredSales.length : 0;
   
+  // Modified formatPrice function for INR currency
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('en-IN', {
       style: 'currency',
