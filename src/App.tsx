@@ -14,6 +14,9 @@ import Dashboard from "./pages/Dashboard";
 import InventoryPage from "./pages/InventoryPage";
 import SalesPage from "./pages/SalesPage";
 import SuppliersPage from "./pages/SuppliersPage";
+import VendorPOPage from "./pages/purchase/VendorPOPage";
+import MyPOPage from "./pages/purchase/MyPOPage";
+import ExpensesPage from "./pages/purchase/ExpensesPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -21,7 +24,7 @@ const queryClient = new QueryClient();
 const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider defaultTheme="light">
+      <ThemeProvider defaultTheme="light" storageKey="wheels-erp-theme">
         <AuthProvider>
           <TooltipProvider>
             <Toaster />
@@ -35,6 +38,9 @@ const App = () => {
                 <Route path="/dashboard/inventory" element={<InventoryPage />} />
                 <Route path="/dashboard/sales" element={<SalesPage />} />
                 <Route path="/dashboard/suppliers" element={<SuppliersPage />} />
+                <Route path="/dashboard/purchase/vendor-po" element={<VendorPOPage />} />
+                <Route path="/dashboard/purchase/my-po" element={<MyPOPage />} />
+                <Route path="/dashboard/purchase/expenses" element={<ExpensesPage />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </BrowserRouter>
