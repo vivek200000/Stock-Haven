@@ -110,7 +110,7 @@ export default function InventoryReportsPage() {
     
     if (range && range.from && range.to) {
       movementFiltered = movementData.filter(item => 
-        item.date >= range.from! && item.date <= range.to!
+        item.date >= range.from && item.date <= range.to
       );
     }
     
