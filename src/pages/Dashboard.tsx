@@ -110,7 +110,182 @@ const AdminDashboard = () => {
         </Tabs>
       </div>
     
-      <TabsContent value="overview" className="m-0">
+      <Tabs value={activeTab} className="hidden">
+        <TabsContent value="overview">
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground">Total Inventory</CardTitle>
+                <PackageOpen className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{totalInventory} items</div>
+                <div className="flex items-center justify-between mt-4">
+                  <p className="text-xs text-muted-foreground">
+                    Across all categories
+                  </p>
+                  <Button variant="outline" size="sm" onClick={handleReset}>
+                    <RefreshCcw className="mr-2 h-3.5 w-3.5" />
+                    Reset
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground">Pending Orders</CardTitle>
+                <ShoppingBag className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{ordersPending}</div>
+                <p className="text-xs text-muted-foreground mt-4">
+                  Requires approval
+                </p>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground">Total Sales</CardTitle>
+                <TrendingUp className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">₹{totalSales.toLocaleString()}</div>
+                <p className="text-xs text-muted-foreground mt-4">
+                  Last 30 days
+                </p>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground">Active Suppliers</CardTitle>
+                <Truck className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{totalSuppliers}</div>
+                <p className="text-xs text-muted-foreground mt-4">
+                  All registered suppliers
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+          
+          <div className="grid gap-4 md:grid-cols-2 mt-4">
+            <Card className="col-span-1">
+              <CardHeader>
+                <CardTitle>Sales by Category</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="h-80">
+                  <ChartContainer config={{
+                    'Engine Parts': { color: COLORS[0] },
+                    'Body Parts': { color: COLORS[1] },
+                    'Electrical': { color: COLORS[2] },
+                    'Fluids & Oils': { color: COLORS[3] },
+                    'Other': { color: COLORS[4] },
+                  }}>
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={salesData}
+                          cx="50%"
+                          cy="50%"
+                          labelLine={false}
+                          outerRadius={100}
+                          fill="#8884d8"
+                          dataKey="value"
+                          label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                        >
+                          {salesData.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                          ))}
+                        </Pie>
+                        <Legend />
+                        <ChartTooltip content={<ChartTooltipContent />} />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </ChartContainer>
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card className="col-span-1">
+              <CardHeader>
+                <CardTitle>Recent Activity</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="flex items-start gap-4">
+                    <CheckCircle className="h-5 w-5 text-green-500 mt-0.5" />
+                    <div>
+                      <p className="font-medium">Order #PO-2023-457 processed</p>
+                      <p className="text-sm text-muted-foreground">Tata Auto Parts | 10 minutes ago</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-start gap-4">
+                    <AlertTriangle className="h-5 w-5 text-amber-500 mt-0.5" />
+                    <div>
+                      <p className="font-medium">Low stock alert: Brake Pads</p>
+                      <p className="text-sm text-muted-foreground">Only 5 units remaining | 2 hours ago</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-start gap-4">
+                    <Users className="h-5 w-5 text-blue-500 mt-0.5" />
+                    <div>
+                      <p className="font-medium">New supplier registered</p>
+                      <p className="text-sm text-muted-foreground">Continental India | 5 hours ago</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-start gap-4">
+                    <ShoppingBag className="h-5 w-5 text-purple-500 mt-0.5" />
+                    <div>
+                      <p className="font-medium">New order received</p>
+                      <p className="text-sm text-muted-foreground">Order #SO-2023-672 | 1 day ago</p>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+        
+        <TabsContent value="sales">
+          <Card>
+            <CardHeader>
+              <CardTitle>Sales Analytics</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="h-[400px] flex items-center justify-center">
+                <p className="text-muted-foreground">Sales analytics dashboard content here</p>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="inventory">
+          <Card>
+            <CardHeader>
+              <CardTitle>Inventory Management</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="h-[400px] flex items-center justify-center">
+                <p className="text-muted-foreground">Inventory management dashboard content here</p>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="requests">
+          <TokenGenerator />
+        </TabsContent>
+      </Tabs>
+      
+      {activeTab === "overview" && (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
@@ -170,7 +345,9 @@ const AdminDashboard = () => {
             </CardContent>
           </Card>
         </div>
-        
+      )}
+      
+      {activeTab === "overview" && (
         <div className="grid gap-4 md:grid-cols-2 mt-4">
           <Card className="col-span-1">
             <CardHeader>
@@ -251,9 +428,9 @@ const AdminDashboard = () => {
             </CardContent>
           </Card>
         </div>
-      </TabsContent>
+      )}
       
-      <TabsContent value="sales" className="m-0">
+      {activeTab === "sales" && (
         <Card>
           <CardHeader>
             <CardTitle>Sales Analytics</CardTitle>
@@ -264,9 +441,9 @@ const AdminDashboard = () => {
             </div>
           </CardContent>
         </Card>
-      </TabsContent>
+      )}
       
-      <TabsContent value="inventory" className="m-0">
+      {activeTab === "inventory" && (
         <Card>
           <CardHeader>
             <CardTitle>Inventory Management</CardTitle>
@@ -277,11 +454,11 @@ const AdminDashboard = () => {
             </div>
           </CardContent>
         </Card>
-      </TabsContent>
+      )}
       
-      <TabsContent value="requests" className="m-0">
+      {activeTab === "requests" && (
         <TokenGenerator />
-      </TabsContent>
+      )}
     </div>
   );
 };
@@ -308,7 +485,7 @@ const ManagerDashboard = () => {
         </Tabs>
       </div>
       
-      <TabsContent value="overview" className="m-0">
+      {activeTab === "overview" && (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
@@ -352,9 +529,9 @@ const ManagerDashboard = () => {
             </CardContent>
           </Card>
         </div>
-      </TabsContent>
+      )}
       
-      <TabsContent value="team" className="m-0">
+      {activeTab === "team" && (
         <Card>
           <CardHeader>
             <CardTitle>Team Management</CardTitle>
@@ -365,11 +542,11 @@ const ManagerDashboard = () => {
             </div>
           </CardContent>
         </Card>
-      </TabsContent>
+      )}
       
-      <TabsContent value="requests" className="m-0">
+      {activeTab === "requests" && (
         <TokenGenerator />
-      </TabsContent>
+      )}
     </div>
   );
 };
@@ -396,7 +573,7 @@ const SupplierDashboard = () => {
         </Tabs>
       </div>
       
-      <TabsContent value="overview" className="m-0">
+      {activeTab === "overview" && (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
@@ -440,9 +617,9 @@ const SupplierDashboard = () => {
             </CardContent>
           </Card>
         </div>
-      </TabsContent>
+      )}
       
-      <TabsContent value="orders" className="m-0">
+      {activeTab === "orders" && (
         <Card>
           <CardHeader>
             <CardTitle>Order Management</CardTitle>
@@ -453,11 +630,11 @@ const SupplierDashboard = () => {
             </div>
           </CardContent>
         </Card>
-      </TabsContent>
+      )}
       
-      <TabsContent value="requests" className="m-0">
+      {activeTab === "requests" && (
         <TokenGenerator />
-      </TabsContent>
+      )}
     </div>
   );
 };
@@ -483,7 +660,7 @@ const UserDashboard = () => {
         </Tabs>
       </div>
       
-      <TabsContent value="overview" className="m-0">
+      {activeTab === "overview" && (
         <div className="grid gap-4 md:grid-cols-2">
           <Card>
             <CardHeader>
@@ -521,11 +698,11 @@ const UserDashboard = () => {
             </CardContent>
           </Card>
         </div>
-      </TabsContent>
+      )}
       
-      <TabsContent value="requests" className="m-0">
+      {activeTab === "requests" && (
         <TokenGenerator />
-      </TabsContent>
+      )}
     </div>
   );
 };
