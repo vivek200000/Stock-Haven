@@ -5,12 +5,12 @@ import { useAuth } from "@/hooks/useAuth";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { Search, Truck, Phone, Mail, Package, Map, Calendar, CheckCircle, AlertCircle, Clock } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { AddSupplierDialog } from "@/components/suppliers/AddSupplierDialog";
+import { toast } from "@/components/ui/use-toast";
 
 interface Supplier {
   id: string;
@@ -144,6 +144,14 @@ export default function SuppliersPage() {
     setFilteredSuppliers(filtered);
   }, [suppliers, searchTerm, activeTab]);
   
+  const handleAddSupplier = (newSupplier: Supplier) => {
+    setSuppliers(prevSuppliers => [newSupplier, ...prevSuppliers]);
+    toast({
+      title: "Supplier added",
+      description: `${newSupplier.name} has been added to your suppliers.`,
+    });
+  };
+  
   const getDeliveryStatusIcon = (status: string) => {
     switch (status) {
       case 'on_time':
@@ -187,10 +195,7 @@ export default function SuppliersPage() {
       <div className="flex flex-col gap-4">
         <div className="flex justify-between items-center">
           <h1 className="text-3xl font-bold tracking-tight">Suppliers</h1>
-          <Button>
-            <Truck className="h-4 w-4 mr-2" />
-            Add Supplier
-          </Button>
+          <AddSupplierDialog onAddSupplier={handleAddSupplier} />
         </div>
         
         <Card>

@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import Nav from "@/components/Nav";
 import { useAuth } from "@/hooks/useAuth";
 import { Car, ChevronRight, Shield, Users } from "lucide-react";
-import { ThemeToggle } from "@/components/ThemeToggle";
 
 export default function Index() {
   const { user } = useAuth();
@@ -13,7 +12,6 @@ export default function Index() {
     <div className="min-h-screen flex flex-col">
       <div className="container flex justify-between items-center py-4">
         <Nav />
-        <ThemeToggle />
       </div>
       
       <main className="flex-grow">
@@ -103,9 +101,9 @@ export default function Index() {
               <p className="font-semibold">Wheels Employee Hub © 2023</p>
             </div>
             <div className="flex gap-6">
-              <a href="#" className="hover:underline">Privacy Policy</a>
-              <a href="#" className="hover:underline">Terms of Service</a>
-              <a href="#" className="hover:underline">Contact</a>
+              <Link to="/privacy-policy" className="hover:underline">Privacy Policy</Link>
+              <Link to="/terms-of-service" className="hover:underline">Terms of Service</Link>
+              <Link to="/contact" className="hover:underline">Contact</Link>
             </div>
           </div>
         </div>
