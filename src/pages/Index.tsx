@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import Nav from "@/components/Nav";
 import { useAuth } from "@/hooks/useAuth";
 import { Car, ChevronRight, Shield, Users } from "lucide-react";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 export default function Index() {
   const { user } = useAuth();
@@ -12,6 +13,7 @@ export default function Index() {
     <div className="min-h-screen flex flex-col">
       <div className="container flex justify-between items-center py-4">
         <Nav />
+        <ThemeToggle />
       </div>
       
       <main className="flex-grow">
@@ -27,10 +29,15 @@ export default function Index() {
               </p>
               
               {!user ? (
-                <div className="animated-fade-in" style={{ animationDelay: "0.4s" }}>
-                  <Link to="/dashboard">
+                <div className="flex flex-col sm:flex-row gap-4 justify-center animated-fade-in" style={{ animationDelay: "0.4s" }}>
+                  <Link to="/signin">
                     <Button size="lg" variant="default" className="w-full sm:w-auto">
-                      Employee Portal
+                      Employee Login
+                    </Button>
+                  </Link>
+                  <Link to="/signup">
+                    <Button size="lg" variant="outline" className="w-full sm:w-auto">
+                      New Employee? Sign Up
                     </Button>
                   </Link>
                 </div>
@@ -96,9 +103,9 @@ export default function Index() {
               <p className="font-semibold">Wheels Employee Hub © 2023</p>
             </div>
             <div className="flex gap-6">
-              <Link to="/privacy-policy" className="hover:underline">Privacy Policy</Link>
-              <Link to="/terms-of-service" className="hover:underline">Terms of Service</Link>
-              <Link to="/contact" className="hover:underline">Contact</Link>
+              <a href="#" className="hover:underline">Privacy Policy</a>
+              <a href="#" className="hover:underline">Terms of Service</a>
+              <a href="#" className="hover:underline">Contact</a>
             </div>
           </div>
         </div>

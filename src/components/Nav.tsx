@@ -1,5 +1,5 @@
 
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Car, LogOut } from "lucide-react";
@@ -9,9 +9,7 @@ import { useAuth } from "@/hooks/useAuth";
 export default function Nav() {
   const { toast } = useToast();
   const navigate = useNavigate();
-  const location = useLocation();
   const { user, signOut } = useAuth();
-  const isHomepage = location.pathname === '/';
 
   const handleSignOut = async () => {
     try {
@@ -31,9 +29,9 @@ export default function Nav() {
   };
 
   return (
-    <header className="border-b w-full">
+    <header className="border-b">
       <div className="automotive-container flex h-16 items-center justify-between">
-        <div className="flex items-center gap-6">
+        <div className="flex items-center gap-2">
           <Link
             to="/"
             className="flex items-center gap-2 font-bold text-xl text-primary"
@@ -44,9 +42,9 @@ export default function Nav() {
         </div>
 
         <div className="flex items-center gap-4">
-          {!isHomepage && <ThemeToggle />}
+          <ThemeToggle />
           
-          {user && (
+          {user ? (
             <div className="flex items-center gap-4">
               <Link to="/dashboard">
                 <Button variant="secondary">Dashboard</Button>
@@ -59,6 +57,15 @@ export default function Nav() {
               >
                 <LogOut className="h-5 w-5" />
               </Button>
+            </div>
+          ) : (
+            <div className="flex items-center gap-4">
+              <Link to="/signin">
+                <Button variant="ghost">Sign In</Button>
+              </Link>
+              <Link to="/signup">
+                <Button>Sign Up</Button>
+              </Link>
             </div>
           )}
         </div>
