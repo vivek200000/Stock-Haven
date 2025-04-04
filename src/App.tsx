@@ -21,6 +21,9 @@ import InvoicePage from "./pages/sales/InvoicePage";
 import InventoryReportsPage from "./pages/reports/InventoryReportsPage";
 import PurchaseReportsPage from "./pages/reports/PurchaseReportsPage";
 import NotFound from "./pages/NotFound";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import TermsOfService from "./pages/TermsOfService";
+import Contact from "./pages/Contact";
 
 const queryClient = new QueryClient();
 
@@ -45,6 +48,9 @@ const App = () => {
                 <Route path="/dashboard/purchase/expenses" element={<ExpensesPage />} />
                 <Route path="/dashboard/reports/inventory" element={<InventoryReportsPage />} />
                 <Route path="/dashboard/reports/purchase" element={<PurchaseReportsPage />} />
+                <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+                <Route path="/terms-of-service" element={<TermsOfService />} />
+                <Route path="/contact" element={<Contact />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </BrowserRouter>

@@ -1,7 +1,6 @@
 
 import React from "react";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DatePickerWithRange } from "@/components/ui/date-range-picker";
 import { Filter, Search } from "lucide-react";
@@ -28,7 +27,6 @@ export function FilterBar({
   onSearchChange,
   onCategoryChange,
   onDateRangeChange,
-  onApplyFilters,
 }: FilterBarProps) {
   return (
     <div className="flex flex-col md:flex-row justify-between gap-4">
@@ -64,10 +62,6 @@ export function FilterBar({
             onChange={onDateRangeChange}
           />
         )}
-        
-        <Button variant="outline" onClick={onApplyFilters}>
-          Apply Filters
-        </Button>
       </div>
     </div>
   );
