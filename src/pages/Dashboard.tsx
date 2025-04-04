@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
@@ -6,7 +5,7 @@ import { DashboardLayout } from "@/components/DashboardLayout";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ReportSummary } from "@/components/reports/ReportSummary";
-import { BarChart, LineChart, PieChart } from "@/components/ui/chart";
+import { BarChart, LineChart, PieChart } from "@/components/ui/charts";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Calendar, Clock, Package, ShoppingCart } from "lucide-react";
 import { StatusBadge } from "@/components/reports/StatusBadge";
