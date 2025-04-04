@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
@@ -107,30 +108,30 @@ export default function Dashboard() {
             <CardHeader className="pb-2">
               <CardTitle>Overview</CardTitle>
               <CardDescription>Sales and order performance</CardDescription>
-
-              <Tabs value={activeChart} onValueChange={setActiveChart} className="mt-2">
-                <TabsList>
-                  <TabsTrigger value="sales">Sales</TabsTrigger>
-                  <TabsTrigger value="orders">Orders</TabsTrigger>
-                  <TabsTrigger value="inventory">Inventory</TabsTrigger>
-                </TabsList>
-              </Tabs>
             </CardHeader>
             <CardContent className="p-0">
               <div className="p-6">
-                <TabsContent value="sales" className="mt-0">
-                  <BarChart data={salesData} />
-                </TabsContent>
-                <TabsContent value="orders" className="mt-0">
-                  <LineChart data={ordersData} />
-                </TabsContent>
-                <TabsContent value="inventory" className="mt-0">
-                  <div className="flex justify-center py-4">
-                    <div style={{ width: '300px', height: '300px' }}>
-                      <PieChart data={inventoryData} />
+                <Tabs value={activeChart} onValueChange={setActiveChart}>
+                  <TabsList>
+                    <TabsTrigger value="sales">Sales</TabsTrigger>
+                    <TabsTrigger value="orders">Orders</TabsTrigger>
+                    <TabsTrigger value="inventory">Inventory</TabsTrigger>
+                  </TabsList>
+                  
+                  <TabsContent value="sales">
+                    <BarChart data={salesData} />
+                  </TabsContent>
+                  <TabsContent value="orders">
+                    <LineChart data={ordersData} />
+                  </TabsContent>
+                  <TabsContent value="inventory">
+                    <div className="flex justify-center py-4">
+                      <div style={{ width: '300px', height: '300px' }}>
+                        <PieChart data={inventoryData} />
+                      </div>
                     </div>
-                  </div>
-                </TabsContent>
+                  </TabsContent>
+                </Tabs>
               </div>
             </CardContent>
           </Card>
