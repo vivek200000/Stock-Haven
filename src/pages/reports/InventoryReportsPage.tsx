@@ -36,17 +36,18 @@ export default function InventoryReportsPage() {
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     const term = e.target.value.toLowerCase();
     setSearchTerm(term);
-    applyFilters(term, categoryFilter, dateRange);
   };
 
   const handleCategoryFilter = (category: string) => {
     setCategoryFilter(category);
-    applyFilters(searchTerm, category, dateRange);
   };
 
   const handleDateRangeChange = (range: DateRange | undefined) => {
     setDateRange(range);
-    applyFilters(searchTerm, categoryFilter, range);
+  };
+  
+  const handleApplyFilters = () => {
+    applyFilters(searchTerm, categoryFilter, dateRange);
   };
 
   return (
@@ -54,7 +55,6 @@ export default function InventoryReportsPage() {
       <div className="flex flex-col gap-4">
         <div className="flex justify-between items-center">
           <h1 className="text-3xl font-bold tracking-tight">Inventory Reports</h1>
-          {/* Export Report button removed */}
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
@@ -76,6 +76,7 @@ export default function InventoryReportsPage() {
                 onSearchChange={handleSearch}
                 onCategoryChange={handleCategoryFilter}
                 onDateRangeChange={handleDateRangeChange}
+                onApplyFilters={handleApplyFilters}
               />
             </CardContent>
           </Card>

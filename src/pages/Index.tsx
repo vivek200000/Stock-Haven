@@ -26,11 +26,7 @@ export default function Index() {
                 The central portal for all automobile industry professionals
               </p>
               
-              {!user ? (
-                <div className="flex flex-col sm:flex-row gap-4 justify-center animated-fade-in" style={{ animationDelay: "0.4s" }}>
-                  {/* Sign in button removed */}
-                </div>
-              ) : (
+              {user && (
                 <div className="animated-fade-in" style={{ animationDelay: "0.4s" }}>
                   <Link to="/dashboard">
                     <Button size="lg">
@@ -92,9 +88,9 @@ export default function Index() {
               <p className="font-semibold">Wheels Employee Hub © 2023</p>
             </div>
             <div className="flex gap-6">
-              <a href="#" className="hover:underline">Privacy Policy</a>
-              <a href="#" className="hover:underline">Terms of Service</a>
-              <a href="#" className="hover:underline">Contact</a>
+              <a href="#privacy" className="hover:underline">Privacy Policy</a>
+              <a href="#terms" className="hover:underline">Terms of Service</a>
+              <a href="#contact" className="hover:underline">Contact</a>
             </div>
           </div>
         </div>

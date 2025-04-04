@@ -16,6 +16,7 @@ interface FilterBarProps {
   onSearchChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onCategoryChange: (category: string) => void;
   onDateRangeChange: (range: DateRange | undefined) => void;
+  onApplyFilters: () => void;
 }
 
 export function FilterBar({
@@ -27,6 +28,7 @@ export function FilterBar({
   onSearchChange,
   onCategoryChange,
   onDateRangeChange,
+  onApplyFilters,
 }: FilterBarProps) {
   return (
     <div className="flex flex-col md:flex-row justify-between gap-4">
@@ -63,7 +65,7 @@ export function FilterBar({
           />
         )}
         
-        <Button variant="outline">
+        <Button variant="outline" onClick={onApplyFilters}>
           Apply Filters
         </Button>
       </div>
