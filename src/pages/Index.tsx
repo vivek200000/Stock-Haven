@@ -27,15 +27,10 @@ export default function Index() {
               </p>
               
               {!user ? (
-                <div className="flex flex-col sm:flex-row gap-4 justify-center animated-fade-in" style={{ animationDelay: "0.4s" }}>
-                  <Link to="/signin">
+                <div className="animated-fade-in" style={{ animationDelay: "0.4s" }}>
+                  <Link to="/dashboard">
                     <Button size="lg" variant="default" className="w-full sm:w-auto">
-                      Employee Login
-                    </Button>
-                  </Link>
-                  <Link to="/signup">
-                    <Button size="lg" variant="outline" className="w-full sm:w-auto">
-                      New Employee? Sign Up
+                      Employee Portal
                     </Button>
                   </Link>
                 </div>

@@ -1,41 +1,32 @@
 
-import { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/components/ui/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import Nav from "@/components/Nav";
 import { Car, Loader2 } from "lucide-react";
 
 export default function SignUp() {
-  const [name, setName] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [role, setRole] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const { signUp, user } = useAuth();
+  const { signUp } = useAuth();
   const { toast } = useToast();
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    // If user is already logged in, redirect to dashboard
-    if (user) {
-      navigate("/dashboard");
-    }
-  }, [user, navigate]);
-
+  
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!name || !email || !password || !confirmPassword || !role) {
+    if (!firstName || !lastName || !email || !password) {
       toast({
         variant: "destructive",
         title: "Validation Error",
-        description: "Please fill in all fields",
+        description: "Please fill in all required fields",
       });
       return;
     }
@@ -43,27 +34,35 @@ export default function SignUp() {
     if (password !== confirmPassword) {
       toast({
         variant: "destructive",
-        title: "Password Error",
-        description: "Passwords do not match",
+        title: "Passwords Don't Match",
+        description: "Please make sure your passwords match",
       });
       return;
     }
     
     try {
       setIsLoading(true);
-      await signUp(name, email, password, role);
-      toast({
-        title: "Account created!",
-        description: "Your account has been successfully created",
+      await signUp(email, password, {
+        firstName,
+        lastName,
       });
-      navigate("/dashboard");
+      
+      toast({
+        title: "Account created",
+        description: "Please check your email to verify your account",
+      });
     } catch (error) {
       console.error("Error signing up:", error);
+      toast({
+        variant: "destructive",
+        title: "Error Creating Account",
+        description: "Could not create your account. Please try again.",
+      });
     } finally {
       setIsLoading(false);
     }
   };
-
+  
   return (
     <div className="min-h-screen flex flex-col">
       <Nav />
@@ -75,24 +74,37 @@ export default function SignUp() {
               <Car className="h-12 w-12 text-automotive-red" />
             </div>
             <h2 className="mt-6 text-3xl font-bold tracking-tight">
-              Create your account
+              Create an account
             </h2>
             <p className="mt-2 text-sm text-muted-foreground">
-              Join the Wheels team and access exclusive employee features
+              Sign up to access the employee dashboard
             </p>
           </div>
           
-          <form onSubmit={handleSubmit} className="auth-form mt-8">
+          <form onSubmit={handleSubmit} className="mt-8 space-y-6">
             <div className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="name">Full Name</Label>
-                <Input
-                  id="name"
-                  placeholder="John Doe"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  required
-                />
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="firstName">First Name</Label>
+                  <Input
+                    id="firstName"
+                    type="text"
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                    required
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="lastName">Last Name</Label>
+                  <Input
+                    id="lastName"
+                    type="text"
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                    required
+                  />
+                </div>
               </div>
               
               <div className="space-y-2">
@@ -105,22 +117,6 @@ export default function SignUp() {
                   onChange={(e) => setEmail(e.target.value)}
                   required
                 />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="role">Role</Label>
-                <Select value={role} onValueChange={setRole} required>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select your role" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Sales Representative">Sales Representative</SelectItem>
-                    <SelectItem value="Service Technician">Service Technician</SelectItem>
-                    <SelectItem value="Customer Service">Customer Service</SelectItem>
-                    <SelectItem value="Manager">Manager</SelectItem>
-                    <SelectItem value="Administrator">Administrator</SelectItem>
-                  </SelectContent>
-                </Select>
               </div>
               
               <div className="space-y-2">
@@ -146,30 +142,28 @@ export default function SignUp() {
                   required
                 />
               </div>
-              
-              <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Creating account
-                  </>
-                ) : (
-                  "Sign Up"
-                )}
-              </Button>
             </div>
             
-            <div className="mt-4 text-center text-sm">
-              <p className="text-muted-foreground">
-                Already have an account?{" "}
-                <Link
-                  to="/signin"
-                  className="font-medium text-primary underline-offset-4 hover:underline"
-                >
-                  Sign in
-                </Link>
-              </p>
-            </div>
+            <Button type="submit" className="w-full" disabled={isLoading}>
+              {isLoading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Creating account
+                </>
+              ) : (
+                "Sign up"
+              )}
+            </Button>
+            
+            <p className="text-center text-sm text-muted-foreground">
+              Already have an account?{" "}
+              <Link
+                to="/signin"
+                className="font-medium text-primary underline-offset-4 hover:underline"
+              >
+                Sign in
+              </Link>
+            </p>
           </form>
         </div>
       </main>

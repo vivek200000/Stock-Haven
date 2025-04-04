@@ -41,17 +41,6 @@ export default function Nav() {
             <Car className="h-6 w-6 text-automotive-red" />
             <span>Wheels</span>
           </Link>
-          
-          {isHomepage && !user && (
-            <div className="flex items-center gap-4">
-              <Link to="/signin">
-                <Button variant="ghost">Sign In</Button>
-              </Link>
-              <Link to="/signup">
-                <Button>Sign Up</Button>
-              </Link>
-            </div>
-          )}
         </div>
 
         <div className="flex items-center gap-4">
