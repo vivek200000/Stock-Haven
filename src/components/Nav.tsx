@@ -63,9 +63,6 @@ export default function Nav() {
               <Link to="/signin">
                 <Button variant="ghost">Sign In</Button>
               </Link>
-              <Link to="/signup">
-                <Button>Sign Up</Button>
-              </Link>
             </div>
           )}
         </div>

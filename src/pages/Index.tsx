@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import Nav from "@/components/Nav";
 import { useAuth } from "@/hooks/useAuth";
 import { Car, ChevronRight, Shield, Users } from "lucide-react";
-import { ThemeToggle } from "@/components/ThemeToggle";
 
 export default function Index() {
   const { user } = useAuth();
@@ -13,7 +12,6 @@ export default function Index() {
     <div className="min-h-screen flex flex-col">
       <div className="container flex justify-between items-center py-4">
         <Nav />
-        <ThemeToggle />
       </div>
       
       <main className="flex-grow">
@@ -33,11 +31,6 @@ export default function Index() {
                   <Link to="/signin">
                     <Button size="lg" variant="default" className="w-full sm:w-auto">
                       Employee Login
-                    </Button>
-                  </Link>
-                  <Link to="/signup">
-                    <Button size="lg" variant="outline" className="w-full sm:w-auto">
-                      New Employee? Sign Up
                     </Button>
                   </Link>
                 </div>
