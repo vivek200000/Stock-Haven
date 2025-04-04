@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -42,10 +41,7 @@ export default function SignUp() {
     
     try {
       setIsLoading(true);
-      await signUp(email, password, {
-        firstName,
-        lastName,
-      });
+      await signUp(`${firstName} ${lastName}`, email, password, "user");
       
       toast({
         title: "Account created",
