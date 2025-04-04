@@ -4,7 +4,6 @@ import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/components/ui/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import Nav from "@/components/Nav";
@@ -15,7 +14,6 @@ export default function SignUp() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [role, setRole] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { signUp, user } = useAuth();
   const { toast } = useToast();
@@ -31,7 +29,7 @@ export default function SignUp() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!name || !email || !password || !confirmPassword || !role) {
+    if (!name || !email || !password || !confirmPassword) {
       toast({
         variant: "destructive",
         title: "Validation Error",
@@ -51,7 +49,8 @@ export default function SignUp() {
     
     try {
       setIsLoading(true);
-      await signUp(name, email, password, role);
+      // Default role is "User" since we removed the role selection
+      await signUp(name, email, password, "User");
       toast({
         title: "Account created!",
         description: "Your account has been successfully created",
@@ -105,22 +104,6 @@ export default function SignUp() {
                   onChange={(e) => setEmail(e.target.value)}
                   required
                 />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="role">Role</Label>
-                <Select value={role} onValueChange={setRole} required>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select your role" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Sales Representative">Sales Representative</SelectItem>
-                    <SelectItem value="Service Technician">Service Technician</SelectItem>
-                    <SelectItem value="Customer Service">Customer Service</SelectItem>
-                    <SelectItem value="Manager">Manager</SelectItem>
-                    <SelectItem value="Administrator">Administrator</SelectItem>
-                  </SelectContent>
-                </Select>
               </div>
               
               <div className="space-y-2">

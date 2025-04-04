@@ -1,5 +1,5 @@
 
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Car, LogOut } from "lucide-react";
@@ -9,7 +9,9 @@ import { useAuth } from "@/hooks/useAuth";
 export default function Nav() {
   const { toast } = useToast();
   const navigate = useNavigate();
+  const location = useLocation();
   const { user, signOut } = useAuth();
+  const isHomepage = location.pathname === "/";
 
   const handleSignOut = async () => {
     try {
@@ -42,7 +44,7 @@ export default function Nav() {
         </div>
 
         <div className="flex items-center gap-4">
-          <ThemeToggle />
+          {!isHomepage && <ThemeToggle />}
           
           {user ? (
             <div className="flex items-center gap-4">
@@ -60,9 +62,11 @@ export default function Nav() {
             </div>
           ) : (
             <div className="flex items-center gap-4">
-              <Link to="/signin">
-                <Button variant="ghost">Sign In</Button>
-              </Link>
+              {!isHomepage && (
+                <Link to="/signin">
+                  <Button variant="ghost">Sign In</Button>
+                </Link>
+              )}
             </div>
           )}
         </div>

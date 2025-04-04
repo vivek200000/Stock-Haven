@@ -28,11 +28,7 @@ export default function Index() {
               
               {!user ? (
                 <div className="flex flex-col sm:flex-row gap-4 justify-center animated-fade-in" style={{ animationDelay: "0.4s" }}>
-                  <Link to="/signin">
-                    <Button size="lg" variant="default" className="w-full sm:w-auto">
-                      Employee Login
-                    </Button>
-                  </Link>
+                  {/* Sign in button removed */}
                 </div>
               ) : (
                 <div className="animated-fade-in" style={{ animationDelay: "0.4s" }}>

@@ -2,9 +2,7 @@
 import { useState } from "react";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Download } from "lucide-react";
 import { DateRange } from "react-day-picker";
 
 // Import custom hooks
@@ -56,10 +54,7 @@ export default function InventoryReportsPage() {
       <div className="flex flex-col gap-4">
         <div className="flex justify-between items-center">
           <h1 className="text-3xl font-bold tracking-tight">Inventory Reports</h1>
-          <Button variant="outline" className="gap-2">
-            <Download className="h-4 w-4" />
-            Export Report
-          </Button>
+          {/* Export Report button removed */}
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">

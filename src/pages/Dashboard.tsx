@@ -1,27 +1,14 @@
-
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Package, Users, BarChart3, Truck, Edit, AlertTriangle, RotateCcw } from "lucide-react";
+import { Package, Users, BarChart3, Truck, Edit, AlertTriangle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Tooltip, PieChart, Pie, Cell, ResponsiveContainer, Legend } from "recharts";
 import { Database } from "@/integrations/supabase/types";
 import { useToast } from "@/hooks/use-toast";
-import { ThemeToggle } from "@/components/ThemeToggle";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
 
 type InventoryItem = Database['public']['Tables']['inventory']['Row'];
 
@@ -42,7 +29,6 @@ export default function Dashboard() {
   const [inventory, setInventory] = useState<InventoryItem[]>([]);
   const [isEditingInventory, setIsEditingInventory] = useState(false);
   const [editedItem, setEditedItem] = useState<InventoryItem | null>(null);
-  const [isResetDialogOpen, setIsResetDialogOpen] = useState(false);
   const [lowStockItems, setLowStockItems] = useState<any[]>(sampleLowStockData);
 
   useEffect(() => {
@@ -131,31 +117,6 @@ export default function Dashboard() {
     }
   };
   
-  const handleResetInventory = async () => {
-    try {
-      const { error } = await supabase
-        .from('inventory')
-        .update({ stock_quantity: 0 })
-        .neq('id', '');
-
-      if (error) throw error;
-      
-      toast({
-        title: "Inventory reset",
-        description: "All inventory stock has been reset to zero",
-      });
-      
-      setIsResetDialogOpen(false);
-    } catch (error) {
-      console.error("Error resetting inventory:", error);
-      toast({
-        title: "Error resetting inventory",
-        description: "There was a problem resetting the inventory",
-        variant: "destructive"
-      });
-    }
-  };
-
   if (loading) {
     return <div className="flex items-center justify-center h-screen">Loading...</div>;
   }
@@ -168,31 +129,6 @@ export default function Dashboard() {
       <div className="flex flex-col gap-4">
         <div className="flex justify-between items-center">
           <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-          <div className="flex items-center gap-2">
-            <AlertDialog open={isResetDialogOpen} onOpenChange={setIsResetDialogOpen}>
-              <AlertDialogTrigger asChild>
-                <Button variant="outline" className="gap-2">
-                  <RotateCcw className="h-4 w-4" />
-                  Reset Inventory
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Reset Inventory</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    This action will set all inventory stock quantities to zero.
-                    This action cannot be undone.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction onClick={handleResetInventory} className="bg-destructive text-destructive-foreground">
-                    Reset
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
-          </div>
         </div>
         
         <p className="text-muted-foreground">

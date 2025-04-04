@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Check, FileText, Filter, Plus, Printer, Search, X } from "lucide-react";
+import { Check, FileText, Filter, Plus, Search, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { format } from "date-fns";
@@ -172,7 +171,6 @@ export default function InvoicePage() {
     const updatedItems = [...newInvoice.items];
     const item = { ...updatedItems[index], [field]: value };
     
-    // Recalculate total for this item
     if (field === "quantity" || field === "unitPrice" || field === "taxes") {
       const quantity = field === "quantity" ? value : item.quantity;
       const unitPrice = field === "unitPrice" ? value : item.unitPrice;
@@ -279,10 +277,6 @@ export default function InvoicePage() {
                     <SelectItem value="Overdue">Overdue</SelectItem>
                   </SelectContent>
                 </Select>
-                <Button variant="outline" className="gap-2">
-                  <Printer className="h-4 w-4" />
-                  Print
-                </Button>
               </div>
             </div>
 
