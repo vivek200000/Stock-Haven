@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
@@ -22,6 +23,20 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 
 type InventoryItem = Database['public']['Tables']['inventory']['Row'];
+
+// Updated images for specific auto parts
+const autoPartImages = {
+  "Air Filter": "/lovable-uploads/aa3c4085-d995-4cb3-9296-2e26bede92f1.png",
+  "Alternator": "/lovable-uploads/d4bbcfe5-6953-44bd-a03d-ab94ffd77433.png",
+  "Battery": "/lovable-uploads/270a6dd9-5b3c-41e5-9600-af24c005b50b.png",
+  "Brake Pads": "/lovable-uploads/2d36268a-78cb-4f2a-9ef5-c0d1aa9b9ad9.png",
+  "Engine Oil Filter": "/lovable-uploads/d0a74886-e20c-4ab3-8662-e93da822006d.png",
+  "Headlight Assembly": "/lovable-uploads/d46a4028-4580-46aa-8fb9-a98a32a8e1e9.png",
+  "Radiator": "/lovable-uploads/0321e865-c69f-4654-aa2c-100e8a52eb53.png",
+  "Shock Absorber": "/lovable-uploads/11553fcf-2188-40b8-a8bd-d2835076c091.png",
+  "Spark Plugs": "/lovable-uploads/57ef0843-673c-4a37-9a5c-9c9fc89ae6b1.png",
+  "Timing Belt": "/lovable-uploads/fd160a06-4369-4dbd-bf3e-9651315b182a.png"
+};
 
 // Sample images for different auto parts categories
 const sampleImages = {
@@ -160,11 +175,17 @@ export default function InventoryPage() {
         return;
       }
 
-      // Generate a sample image URL if not provided
+      // Generate a sample image URL if not provided or use specific part image if available
       let imageUrl = newItem.image_url;
       if (!imageUrl) {
-        const categoryImages = sampleImages[newItem.category as keyof typeof sampleImages] || sampleImages.Default;
-        imageUrl = categoryImages[Math.floor(Math.random() * categoryImages.length)];
+        // Check if we have a specific image for this part name
+        if (autoPartImages[newItem.name as keyof typeof autoPartImages]) {
+          imageUrl = autoPartImages[newItem.name as keyof typeof autoPartImages];
+        } else {
+          // Fall back to category images
+          const categoryImages = sampleImages[newItem.category as keyof typeof sampleImages] || sampleImages.Default;
+          imageUrl = categoryImages[Math.floor(Math.random() * categoryImages.length)];
+        }
       }
 
       const { data, error } = await supabase
@@ -224,11 +245,17 @@ export default function InventoryPage() {
     }).format(price);
   };
 
-  const getCategoryImage = (category: string | null) => {
-    if (!category || !sampleImages[category as keyof typeof sampleImages]) {
+  const getItemImage = (item: InventoryItem) => {
+    // First check if we have a specific image for this part name
+    if (autoPartImages[item.name as keyof typeof autoPartImages]) {
+      return autoPartImages[item.name as keyof typeof autoPartImages];
+    }
+    
+    // Fall back to category-based images
+    if (!item.category || !sampleImages[item.category as keyof typeof sampleImages]) {
       return sampleImages.Default[0];
     }
-    const categoryImages = sampleImages[category as keyof typeof sampleImages];
+    const categoryImages = sampleImages[item.category as keyof typeof sampleImages];
     return categoryImages[0];
   };
 
@@ -274,7 +301,7 @@ export default function InventoryPage() {
             <Card key={item.id} className="overflow-hidden flex flex-col h-full transition-all duration-200 hover:shadow-md">
               <div className="h-48 overflow-hidden bg-muted relative">
                 <img
-                  src={item.image_url || getCategoryImage(item.category)}
+                  src={getItemImage(item)}
                   alt={item.name}
                   className="w-full h-full object-cover transition-transform hover:scale-105"
                   onError={(e) => {
@@ -444,7 +471,7 @@ export default function InventoryPage() {
             <div className="grid md:grid-cols-2 gap-4">
               <div className="h-60 overflow-hidden rounded-md bg-muted">
                 <img
-                  src={selectedItem.image_url || getCategoryImage(selectedItem.category)}
+                  src={getItemImage(selectedItem)}
                   alt={selectedItem.name}
                   className="w-full h-full object-cover"
                 />
