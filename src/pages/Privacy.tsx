@@ -17,7 +17,7 @@ export default function Privacy() {
             
             <h2 className="text-2xl font-semibold mt-8 mb-4">1. Introduction</h2>
             <p>
-              Welcome to the Wheels Employee Hub Privacy Policy. This document explains how we collect, use, and protect your personal information when you use our platform.
+              Welcome to the AE Engineering Privacy Policy. This document explains how we collect, use, and protect your personal information when you use our platform.
             </p>
             
             <h2 className="text-2xl font-semibold mt-8 mb-4">2. Information We Collect</h2>
