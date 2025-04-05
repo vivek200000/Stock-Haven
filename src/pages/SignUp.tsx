@@ -77,7 +77,7 @@ export default function SignUp() {
               Create your account
             </h2>
             <p className="mt-2 text-sm text-muted-foreground">
-              Join the Wheels team and access exclusive employee features
+              Join the team and access exclusive employee features
             </p>
           </div>
           
