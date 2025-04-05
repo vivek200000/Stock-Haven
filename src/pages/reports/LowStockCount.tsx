@@ -1,5 +1,4 @@
-
-import { useState } from "react";
+import React, { useState } from 'react';
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
@@ -19,7 +18,6 @@ interface LowStockItem {
 }
 
 export default function LowStockCount() {
-  // Sample data for low stock items
   const sampleLowStockData: LowStockItem[] = [
     { 
       id: "SKU001", 
@@ -92,7 +90,6 @@ export default function LowStockCount() {
 
   const categories = [...new Set(sampleLowStockData.map(item => item.category))];
   
-  // Filter the data based on search term, category, and status
   const filteredData = sampleLowStockData.filter(item => {
     const matchesSearch = searchTerm === "" || 
       item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -105,18 +102,16 @@ export default function LowStockCount() {
     return matchesSearch && matchesCategory && matchesStatus;
   });
 
-  // Count items by status
   const criticalCount = sampleLowStockData.filter(item => item.status === "critical").length;
   const warningCount = sampleLowStockData.filter(item => item.status === "warning").length;
   const totalItems = sampleLowStockData.length;
 
-  // Function to determine badge variant based on status
   const getBadgeVariant = (status: string) => {
     switch (status) {
       case "critical":
         return "destructive";
       case "warning":
-        return "warning";
+        return "secondary";
       default:
         return "outline";
     }
