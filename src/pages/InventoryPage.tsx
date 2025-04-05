@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
@@ -24,7 +23,6 @@ import { Badge } from "@/components/ui/badge";
 
 type InventoryItem = Database['public']['Tables']['inventory']['Row'];
 
-// Updated images for specific auto parts
 const autoPartImages = {
   "Air Filter": "/lovable-uploads/aa3c4085-d995-4cb3-9296-2e26bede92f1.png",
   "Alternator": "/lovable-uploads/d4bbcfe5-6953-44bd-a03d-ab94ffd77433.png",
@@ -34,11 +32,11 @@ const autoPartImages = {
   "Headlight Assembly": "/lovable-uploads/d46a4028-4580-46aa-8fb9-a98a32a8e1e9.png",
   "Radiator": "/lovable-uploads/0321e865-c69f-4654-aa2c-100e8a52eb53.png",
   "Shock Absorber": "/lovable-uploads/11553fcf-2188-40b8-a8bd-d2835076c091.png",
-  "Spark Plugs": "/lovable-uploads/57ef0843-673c-4a37-9a5c-9c9fc89ae6b1.png",
+  "Spark Plugs": "/lovable-uploads/a04ed822-5207-4391-acb5-1deb5be2e2e5.png",
+  "Spark Plugs (Set of 4)": "/lovable-uploads/a04ed822-5207-4391-acb5-1deb5be2e2e5.png",
   "Timing Belt": "/lovable-uploads/fd160a06-4369-4dbd-bf3e-9651315b182a.png"
 };
 
-// Sample images for different auto parts categories
 const sampleImages = {
   'Engine Parts': [
     '/lovable-uploads/db7037f4-82df-4e87-ab07-fee4a5735c77.png',
@@ -175,14 +173,11 @@ export default function InventoryPage() {
         return;
       }
 
-      // Generate a sample image URL if not provided or use specific part image if available
       let imageUrl = newItem.image_url;
       if (!imageUrl) {
-        // Check if we have a specific image for this part name
         if (autoPartImages[newItem.name as keyof typeof autoPartImages]) {
           imageUrl = autoPartImages[newItem.name as keyof typeof autoPartImages];
         } else {
-          // Fall back to category images
           const categoryImages = sampleImages[newItem.category as keyof typeof sampleImages] || sampleImages.Default;
           imageUrl = categoryImages[Math.floor(Math.random() * categoryImages.length)];
         }
@@ -236,7 +231,6 @@ export default function InventoryPage() {
     return <div className="flex items-center justify-center h-screen">Loading...</div>;
   }
 
-  // Modified formatPrice function for INR currency
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('en-IN', {
       style: 'currency',
@@ -246,12 +240,10 @@ export default function InventoryPage() {
   };
 
   const getItemImage = (item: InventoryItem) => {
-    // First check if we have a specific image for this part name
     if (autoPartImages[item.name as keyof typeof autoPartImages]) {
       return autoPartImages[item.name as keyof typeof autoPartImages];
     }
     
-    // Fall back to category-based images
     if (!item.category || !sampleImages[item.category as keyof typeof sampleImages]) {
       return sampleImages.Default[0];
     }
@@ -355,7 +347,6 @@ export default function InventoryPage() {
         </div>
       </div>
 
-      {/* Add New Item Dialog */}
       <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
@@ -458,7 +449,6 @@ export default function InventoryPage() {
         </DialogContent>
       </Dialog>
 
-      {/* View Item Details Dialog */}
       {selectedItem && (
         <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
           <DialogContent className="sm:max-w-[550px]">
@@ -519,7 +509,6 @@ export default function InventoryPage() {
                 variant="default"
                 onClick={() => {
                   setIsViewDialogOpen(false);
-                  // Here you would implement the "Edit" functionality
                   toast({
                     title: "Edit functionality",
                     description: "Edit functionality will be implemented soon",
