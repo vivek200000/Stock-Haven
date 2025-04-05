@@ -65,7 +65,7 @@ export default function SignIn() {
               Sign in to your account
             </h2>
             <p className="mt-2 text-sm text-muted-foreground">
-              Enter your credentials to access the employee dashboard
+              Enter your credentials to access the dashboard
             </p>
           </div>
           
