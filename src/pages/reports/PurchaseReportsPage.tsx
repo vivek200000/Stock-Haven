@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -93,23 +93,20 @@ export default function PurchaseReportsPage() {
   const [filteredVendorData, setFilteredVendorData] = useState(vendorData);
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const term = e.target.value.toLowerCase();
-    setSearchTerm(term);
-    filterData(term, dateRange);
+    setSearchTerm(e.target.value);
   };
 
   const handleDateRangeChange = (range: DateRange | undefined) => {
     setDateRange(range);
-    filterData(searchTerm, range);
   };
 
-  const filterData = (term: string, dateRange?: DateRange) => {
+  const handleApplyFilters = () => {
     // Filter purchase order data
     const filteredOrders = purchaseData.filter(order => {
       // Filter by search term
-      const matchesSearch = !term || 
-        order.vendor.toLowerCase().includes(term.toLowerCase()) ||
-        order.id.toLowerCase().includes(term.toLowerCase());
+      const matchesSearch = !searchTerm || 
+        order.vendor.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        order.id.toLowerCase().includes(searchTerm.toLowerCase());
       
       // Filter by date range
       const matchesDate = !dateRange || !dateRange.from || !dateRange.to ||
@@ -120,19 +117,14 @@ export default function PurchaseReportsPage() {
     
     // Filter vendor data
     const filteredVendors = vendorData.filter(vendor => {
-      return !term || 
-        vendor.name.toLowerCase().includes(term.toLowerCase()) ||
-        vendor.id.toLowerCase().includes(term.toLowerCase());
+      return !searchTerm || 
+        vendor.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        vendor.id.toLowerCase().includes(searchTerm.toLowerCase());
     });
     
     setFilteredPurchaseData(filteredOrders);
     setFilteredVendorData(filteredVendors);
   };
-
-  // Initial filtering when component mounts
-  useEffect(() => {
-    filterData(searchTerm, dateRange);
-  }, [activeTab]);
 
   return (
     <DashboardLayout>
@@ -158,7 +150,7 @@ export default function PurchaseReportsPage() {
                 onSearchChange={handleSearch}
                 onCategoryChange={() => {}}
                 onDateRangeChange={handleDateRangeChange}
-                onApplyFilters={() => {}}
+                onApplyFilters={handleApplyFilters}
               />
             </CardContent>
           </Card>
