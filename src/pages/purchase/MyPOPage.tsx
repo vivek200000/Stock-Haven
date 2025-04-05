@@ -565,8 +565,8 @@ export default function MyPOPage() {
                           <TableRow key={item.id}>
                             <TableCell>{item.name}</TableCell>
                             <TableCell className="text-right">{item.quantity}</TableCell>
-                            <TableCell className="text-right">${item.price.toFixed(2)}</TableCell>
-                            <TableCell className="text-right">${item.total.toFixed(2)}</TableCell>
+                            <TableCell className="text-right">₹{item.price.toFixed(2)}</TableCell>
+                            <TableCell className="text-right">₹{item.total.toFixed(2)}</TableCell>
                           </TableRow>
                         ))}
                         <TableRow>
