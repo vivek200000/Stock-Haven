@@ -17,7 +17,7 @@ export default function Terms() {
             
             <h2 className="text-2xl font-semibold mt-8 mb-4">1. Acceptance of Terms</h2>
             <p>
-              By accessing or using the Wheels Employee Hub, you agree to be bound by these Terms of Service and all applicable laws and regulations.
+              By accessing or using the AE Engineering, you agree to be bound by these Terms of Service and all applicable laws and regulations.
             </p>
             
             <h2 className="text-2xl font-semibold mt-8 mb-4">2. Use License</h2>
