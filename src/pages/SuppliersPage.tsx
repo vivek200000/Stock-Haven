@@ -44,7 +44,7 @@ const generateSampleSuppliers = (): Supplier[] => {
     "Lumax Industries Limited",
     "UNO Minda Limited",
     "Hero MotoCorp Limited",
-    "Continental Priavete Limited",
+    "Continental Private Limited",
     "SKF India Limited",
     "Samvardhana Motherson Ltd",
     "Gabriel India Limited",
