@@ -62,16 +62,6 @@ export default function Nav() {
             </div>
           ) : (
             <div className="flex items-center gap-4">
-              {isHomepage && (
-                <>
-                  <Link to="/signin">
-                    <Button variant="outline">Sign In</Button>
-                  </Link>
-                  <Link to="/signup">
-                    <Button>Sign Up</Button>
-                  </Link>
-                </>
-              )}
               {!isHomepage && (
                 <Link to="/signin">
                   <Button variant="ghost">Sign In</Button>

@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -92,15 +92,8 @@ export default function PurchaseReportsPage() {
   const [filteredPurchaseData, setFilteredPurchaseData] = useState(purchaseData);
   const [filteredVendorData, setFilteredVendorData] = useState(vendorData);
 
-  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchTerm(e.target.value);
-  };
-
-  const handleDateRangeChange = (range: DateRange | undefined) => {
-    setDateRange(range);
-  };
-
-  const handleApplyFilters = () => {
+  // Apply filters whenever search term or date range changes
+  useEffect(() => {
     // Filter purchase order data
     const filteredOrders = purchaseData.filter(order => {
       // Filter by search term
@@ -124,6 +117,14 @@ export default function PurchaseReportsPage() {
     
     setFilteredPurchaseData(filteredOrders);
     setFilteredVendorData(filteredVendors);
+  }, [searchTerm, dateRange]);
+
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value);
+  };
+
+  const handleDateRangeChange = (range: DateRange | undefined) => {
+    setDateRange(range);
   };
 
   return (
@@ -150,7 +151,7 @@ export default function PurchaseReportsPage() {
                 onSearchChange={handleSearch}
                 onCategoryChange={() => {}}
                 onDateRangeChange={handleDateRangeChange}
-                onApplyFilters={handleApplyFilters}
+                onApplyFilters={() => {}} // Keeping the prop but making it a no-op
               />
             </CardContent>
           </Card>

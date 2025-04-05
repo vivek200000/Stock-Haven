@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -36,18 +36,17 @@ export default function InventoryReportsPage() {
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     const term = e.target.value.toLowerCase();
     setSearchTerm(term);
+    applyFilters(term, categoryFilter, dateRange);
   };
 
   const handleCategoryFilter = (category: string) => {
     setCategoryFilter(category);
+    applyFilters(searchTerm, category, dateRange);
   };
 
   const handleDateRangeChange = (range: DateRange | undefined) => {
     setDateRange(range);
-  };
-  
-  const handleApplyFilters = () => {
-    applyFilters(searchTerm, categoryFilter, dateRange);
+    applyFilters(searchTerm, categoryFilter, range);
   };
 
   return (
@@ -76,7 +75,7 @@ export default function InventoryReportsPage() {
                 onSearchChange={handleSearch}
                 onCategoryChange={handleCategoryFilter}
                 onDateRangeChange={handleDateRangeChange}
-                onApplyFilters={handleApplyFilters}
+                onApplyFilters={() => {}} // Keeping the prop but making it a no-op
               />
             </CardContent>
           </Card>

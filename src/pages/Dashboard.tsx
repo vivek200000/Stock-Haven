@@ -1,10 +1,11 @@
+
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Package, Users, BarChart3, Truck, Edit, AlertTriangle } from "lucide-react";
+import { Package, Users, BarChart3, Truck, Edit } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Tooltip, PieChart, Pie, Cell, ResponsiveContainer, Legend } from "recharts";
 import { Database } from "@/integrations/supabase/types";
@@ -379,59 +380,6 @@ export default function Dashboard() {
                 </div>
               </div>
             </CardContent>
-          </Card>
-          
-          <Card className="border-red-200 dark:border-red-800">
-            <CardHeader className="bg-red-50 dark:bg-red-900/20 rounded-t-lg">
-              <div className="flex items-center gap-2">
-                <AlertTriangle className="h-5 w-5 text-red-500" />
-                <CardTitle>Low Stock Alert</CardTitle>
-              </div>
-              <CardDescription>
-                These items need immediate restocking
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="pt-4">
-              <div className="space-y-4 max-h-[250px] overflow-y-auto">
-                {lowStockItems.length > 0 ? (
-                  lowStockItems.map(item => (
-                    <div key={item.id} className="flex items-center gap-3 border-b pb-3">
-                      <div className="h-12 w-12 overflow-hidden rounded-md bg-muted flex-shrink-0">
-                        <img 
-                          src={item.image_url || `/placeholder.svg`} 
-                          alt={item.name}
-                          className="h-full w-full object-cover"
-                        />
-                      </div>
-                      <div className="flex-1">
-                        <p className="font-medium text-sm">{item.name}</p>
-                        <div className="flex items-center justify-between mt-1">
-                          <p className="text-xs text-muted-foreground">
-                            Category: {item.category}
-                          </p>
-                          <span className={`text-xs px-2 py-0.5 rounded-full ${
-                            item.stock_quantity === 0
-                              ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300'
-                              : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300'
-                          }`}>
-                            {item.stock_quantity === 0 ? 'Out of stock' : `Only ${item.stock_quantity} left`}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  ))
-                ) : (
-                  <div className="text-center py-6">
-                    <p className="text-sm text-muted-foreground">No low stock items</p>
-                  </div>
-                )}
-              </div>
-            </CardContent>
-            <CardFooter className="bg-red-50/50 dark:bg-red-900/10 rounded-b-lg">
-              <Button variant="outline" className="w-full" onClick={() => navigate('/dashboard/inventory')}>
-                View All Inventory
-              </Button>
-            </CardFooter>
           </Card>
         </div>
       </div>
