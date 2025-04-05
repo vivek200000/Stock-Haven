@@ -39,7 +39,7 @@ export default function Nav() {
             className="flex items-center gap-2 font-bold text-xl text-primary"
           >
             <Car className="h-6 w-6 text-automotive-red" />
-            <span>Wheels</span>
+            <span>AE Engineering</span>
           </Link>
         </div>
 
@@ -48,9 +48,6 @@ export default function Nav() {
           
           {user ? (
             <div className="flex items-center gap-4">
-              <Link to="/dashboard">
-                <Button variant="secondary">Dashboard</Button>
-              </Link>
               <Button
                 variant="ghost"
                 size="icon"
