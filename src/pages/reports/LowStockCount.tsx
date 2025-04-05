@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -85,8 +86,8 @@ export default function LowStockCount() {
   ];
 
   const [searchTerm, setSearchTerm] = useState("");
-  const [categoryFilter, setCategoryFilter] = useState("");
-  const [statusFilter, setStatusFilter] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("all");
 
   const categories = [...new Set(sampleLowStockData.map(item => item.category))];
   
@@ -95,9 +96,9 @@ export default function LowStockCount() {
       item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       item.id.toLowerCase().includes(searchTerm.toLowerCase());
     
-    const matchesCategory = categoryFilter === "" || item.category === categoryFilter;
+    const matchesCategory = categoryFilter === "all" || item.category === categoryFilter;
     
-    const matchesStatus = statusFilter === "" || item.status === statusFilter;
+    const matchesStatus = statusFilter === "all" || item.status === statusFilter;
     
     return matchesSearch && matchesCategory && matchesStatus;
   });
@@ -183,7 +184,7 @@ export default function LowStockCount() {
               <SelectValue placeholder="All Categories" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All Categories</SelectItem>
+              <SelectItem value="all">All Categories</SelectItem>
               {categories.map((category) => (
                 <SelectItem key={category} value={category}>
                   {category}
@@ -197,7 +198,7 @@ export default function LowStockCount() {
               <SelectValue placeholder="All Status" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All Status</SelectItem>
+              <SelectItem value="all">All Status</SelectItem>
               <SelectItem value="critical">Critical</SelectItem>
               <SelectItem value="warning">Warning</SelectItem>
             </SelectContent>
