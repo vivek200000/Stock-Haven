@@ -22,6 +22,10 @@ import InvoicePage from "./pages/sales/InvoicePage";
 import InventoryReportsPage from "./pages/reports/InventoryReportsPage";
 import PurchaseReportsPage from "./pages/reports/PurchaseReportsPage";
 import NotFound from "./pages/NotFound";
+// Import new pages
+import Privacy from "./pages/Privacy";
+import Terms from "./pages/Terms";
+import Contact from "./pages/Contact";
 
 const queryClient = new QueryClient();
 
@@ -46,6 +50,10 @@ const App: React.FC = () => {
                 <Route path="/dashboard/purchase/expenses" element={<ExpensesPage />} />
                 <Route path="/dashboard/reports/inventory" element={<InventoryReportsPage />} />
                 <Route path="/dashboard/reports/purchase" element={<PurchaseReportsPage />} />
+                {/* Add new routes */}
+                <Route path="/privacy" element={<Privacy />} />
+                <Route path="/terms" element={<Terms />} />
+                <Route path="/contact" element={<Contact />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </BrowserRouter>

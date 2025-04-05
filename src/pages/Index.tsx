@@ -26,16 +26,30 @@ export default function Index() {
                 The central portal for all automobile industry professionals
               </p>
               
-              {user && (
-                <div className="animated-fade-in" style={{ animationDelay: "0.4s" }}>
+              {/* Auth buttons or dashboard button based on auth state */}
+              <div className="animated-fade-in flex justify-center gap-4" style={{ animationDelay: "0.4s" }}>
+                {user ? (
                   <Link to="/dashboard">
                     <Button size="lg">
                       Go to Dashboard
                       <ChevronRight className="ml-2 h-4 w-4" />
                     </Button>
                   </Link>
-                </div>
-              )}
+                ) : (
+                  <>
+                    <Link to="/signin">
+                      <Button variant="outline" size="lg">
+                        Sign In
+                      </Button>
+                    </Link>
+                    <Link to="/signup">
+                      <Button size="lg">
+                        Sign Up
+                      </Button>
+                    </Link>
+                  </>
+                )}
+              </div>
             </div>
           </div>
         </section>
@@ -88,9 +102,9 @@ export default function Index() {
               <p className="font-semibold">Wheels Employee Hub © 2023</p>
             </div>
             <div className="flex gap-6">
-              <a href="#privacy" className="hover:underline">Privacy Policy</a>
-              <a href="#terms" className="hover:underline">Terms of Service</a>
-              <a href="#contact" className="hover:underline">Contact</a>
+              <Link to="/privacy" className="hover:underline">Privacy Policy</Link>
+              <Link to="/terms" className="hover:underline">Terms of Service</Link>
+              <Link to="/contact" className="hover:underline">Contact</Link>
             </div>
           </div>
         </div>
