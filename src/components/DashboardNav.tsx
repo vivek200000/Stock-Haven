@@ -16,7 +16,9 @@ import {
   Truck, 
   FileText,
   ChevronDown,
-  ChevronRight
+  ChevronRight,
+  AlertTriangle,
+  Boxes
 } from "lucide-react";
 import { useState } from "react";
 import {
@@ -89,7 +91,8 @@ export function DashboardNav() {
       hasDropdown: true,
       dropdownItems: [
         { title: "Inventory Reports", path: "/dashboard/reports/inventory" },
-        { title: "Purchase Reports", path: "/dashboard/reports/purchase" }
+        { title: "Purchase Reports", path: "/dashboard/reports/purchase" },
+        { title: "Low Stock Count", path: "/dashboard/reports/low-stock" }
       ]
     }
   ];
@@ -127,7 +130,14 @@ export function DashboardNav() {
                             isActive(dropdownItem.path) ? "bg-accent text-accent-foreground" : "text-sidebar-foreground"
                           }`}
                         >
-                          {dropdownItem.title}
+                          {dropdownItem.title === "Low Stock Count" ? (
+                            <>
+                              <Boxes className="mr-2 h-4 w-4" />
+                              {dropdownItem.title}
+                            </>
+                          ) : (
+                            dropdownItem.title
+                          )}
                         </Link>
                       ))}
                     </div>
