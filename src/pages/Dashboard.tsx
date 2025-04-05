@@ -1,58 +1,7 @@
-
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { LowStockAlert } from "@/components/dashboard/LowStockAlert";
-import { useAuth } from "@/hooks/useAuth";
-import { useToast } from "@/components/ui/use-toast";
-import { supabase } from "@/integrations/supabase/client";
-
-// Define the InventoryItem interface
-interface InventoryItem {
-  id: string;
-  name: string;
-  category: string;
-  price: number;
-  stock_quantity: number;
-  description?: string;
-  image_url?: string;
-  created_at: string;
-  updated_at: string;
-}
-
-// Sample data for low stock items if database fetch fails
-const sampleLowStockData = [
-  {
-    id: "BRK-001",
-    name: "Brake Pads - Front",
-    quantity: 3,
-    reorderLevel: 5,
-    category: "Brakes",
-  },
-  {
-    id: "OIL-023",
-    name: "Engine Oil Filter",
-    quantity: 4,
-    reorderLevel: 10,
-    category: "Filters",
-  },
-  {
-    id: "SPK-089",
-    name: "Spark Plugs - Premium",
-    quantity: 5,
-    reorderLevel: 15,
-    category: "Engine",
-  },
-  {
-    id: "BATT-45",
-    name: "Battery - 45Ah",
-    quantity: 2,
-    reorderLevel: 8,
-    category: "Electrical",
-  },
-];
 
 export default function Dashboard() {
   const { user, loading } = useAuth();
