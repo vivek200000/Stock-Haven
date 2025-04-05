@@ -41,7 +41,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
           <SidebarHeader className="flex flex-col items-center justify-center border-b p-4">
             <div className="flex items-center">
               <Car className="h-6 w-6 text-automotive-red mr-2" />
-              <h1 className="text-xl font-bold">Wheels ERP</h1>
+              <h1 className="text-xl font-bold">AE Engineering</h1>
             </div>
           </SidebarHeader>
           
