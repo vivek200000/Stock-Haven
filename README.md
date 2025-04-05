@@ -1,22 +1,6 @@
-# Welcome to your Lovable project
-
-## Project info
-
-**URL**: https://lovable.dev/projects/5fa7362a-0daf-4240-ae65-5d97ebce4b50
-
-## How can I edit this code?
-
-There are several ways of editing your application.
-
-**Use Lovable**
-
-Simply visit the [Lovable Project](https://lovable.dev/projects/5fa7362a-0daf-4240-ae65-5d97ebce4b50) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
 **Use your preferred IDE**
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+If you want to work locally using your own IDE, you can clone this repo and push changes.
 
 The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
 
@@ -60,14 +44,26 @@ This project is built with:
 - shadcn-ui
 - Tailwind CSS
 
-## How can I deploy this project?
+##Deployment
+The project can be deployed using various platforms:
 
-Simply open [Lovable](https://lovable.dev/projects/5fa7362a-0daf-4240-ae65-5d97ebce4b50) and click on Share -> Publish.
+Vercel (Recommended)
 
-## Can I connect a custom domain to my Lovable project?
+-Connect your GitHub repository
+-Configure environment variables
+-Deploy with one click
 
+Netlify
+-Connect your GitHub repository
+-Set build command: npm run build
+-Set publish directory: dist
+-Configure environment variables
+
+GitHub Pages
+-Add base configuration in vite.config.ts
+-Set build command: npm run build
+-Deploy using GitHub Actions
+
+## Can I connect a custom domain to my project?
 Yes it is!
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
