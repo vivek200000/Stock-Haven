@@ -186,7 +186,6 @@ export default function SuppliersPage() {
     <DashboardLayout>
       <div className="flex flex-col gap-4">
         <div className="flex justify-between items-center">
-          <h1 className="text-3xl font-bold tracking-tight">Suppliers</h1>
           <Button>
             <Truck className="h-4 w-4 mr-2" />
             Add Supplier
