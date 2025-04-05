@@ -47,7 +47,7 @@ export default function Contact() {
             <div>
               <h2 className="text-2xl font-semibold mb-6">Get in Touch</h2>
               <p className="text-muted-foreground mb-8">
-                Have questions about Wheels Employee Hub? Our team is here to help you.
+                Have questions about AE Engineering? Our team is here to help you.
                 Fill out the form and we'll get back to you as soon as possible.
               </p>
               
@@ -56,7 +56,7 @@ export default function Contact() {
                   <MapPin className="h-5 w-5 text-primary mt-1" />
                   <div>
                     <h3 className="font-medium">Address</h3>
-                    <p className="text-muted-foreground">123 Automotive Avenue, City, Country</p>
+                    <p className="text-muted-foreground">363, Basai Enclave, Sector-9B, Gurugram, Haryana 122001</p>
                   </div>
                 </div>
                 
@@ -64,7 +64,7 @@ export default function Contact() {
                   <Mail className="h-5 w-5 text-primary mt-1" />
                   <div>
                     <h3 className="font-medium">Email</h3>
-                    <p className="text-muted-foreground">support@wheelsemployeehub.com</p>
+                    <p className="text-muted-foreground">arteshengineering@hotmail.com</p>
                   </div>
                 </div>
                 
@@ -72,7 +72,7 @@ export default function Contact() {
                   <Phone className="h-5 w-5 text-primary mt-1" />
                   <div>
                     <h3 className="font-medium">Phone</h3>
-                    <p className="text-muted-foreground">+1 (555) 123-4567</p>
+                    <p className="text-muted-foreground">+91 9891678229</p>
                   </div>
                 </div>
               </div>
