@@ -20,7 +20,7 @@ export default function Index() {
           <div className="automotive-container">
             <div className="max-w-3xl mx-auto text-center">
               <h1 className="text-4xl md:text-5xl font-bold mb-6 animated-fade-in">
-                Wheels Employee Hub
+                AE Engineering
               </h1>
               <p className="text-xl mb-8 opacity-90 animated-fade-in" style={{ animationDelay: "0.2s" }}>
                 The central portal for all automobile industry professionals
