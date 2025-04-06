@@ -99,7 +99,7 @@ export default function Index() {
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="flex items-center gap-2 mb-4 md:mb-0">
               <Car className="h-5 w-5 text-automotive-red" />
-              <p className="font-semibold">Wheels Employee Hub © 2023</p>
+              <p className="font-semibold">AE Engineering © 2025</p>
             </div>
             <div className="flex gap-6">
               <Link to="/privacy" className="hover:underline">Privacy Policy</Link>
